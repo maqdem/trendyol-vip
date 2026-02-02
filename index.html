@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" id="html-tag">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,14 +12,12 @@
         .box { width: 100%; max-width: 350px; text-align: center; }
         .input-field { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; width: 100%; box-sizing: border-box; }
         #main-app { display: none; }
-        .header { background: var(--dark); color: white; padding: 30px 20px; text-align: center; position: relative; border-bottom: 4px solid var(--gold); }
+        .header { background: var(--dark); color: white; padding: 30px 20px; text-align: center; border-bottom: 4px solid var(--gold); }
         .balance-val { font-size: 36px; font-weight: bold; color: var(--gold); }
-        .btn-wallet { padding: 10px 20px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; flex: 1; }
-        .task-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; gap: 15px; align-items: center; border-left: 6px solid var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        [dir="rtl"] .task-card { border-left: none; border-right: 6px solid var(--primary); }
-        .btn-confirm { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; text-align: center; width: 100%; max-width: 400px; }
+        .task-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .btn-confirm { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 3000; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; text-align: center; max-width: 300px; }
     </style>
 </head>
 <body>
@@ -28,38 +26,28 @@
             <h1 style="color: var(--primary);">Trendyol VIP</h1>
             <input type="email" id="email" class="input-field" placeholder="Email">
             <input type="password" id="password" class="input-field" placeholder="Password">
-            <button class="btn-confirm" onclick="handleAuth('login')">Login</button>
-            <button class="btn-confirm" style="background:#444;" onclick="handleAuth('signup')">Create Account</button>
+            <button class="btn-confirm" style="width:100%; margin-top:10px;" onclick="handleAuth('login')">Login</button>
+            <button class="btn-confirm" style="width:100%; margin-top:10px; background:#444;" onclick="handleAuth('signup')">Create Account</button>
         </div>
     </div>
 
     <div id="main-app">
         <div class="header">
-            <div id="bal-text">Total Balance (USDT)</div>
+            <div>Total Balance (USDT)</div>
             <div class="balance-val">$ <span id="balance">0.00</span></div>
-            <div style="display:flex; gap:10px; margin-top:15px; justify-content:center;">
-                <button class="btn-wallet" style="background:var(--green);" onclick="showModal('deposit')">Deposit</button>
-                <button class="btn-wallet" style="background:var(--red);" onclick="showModal('withdraw')">Withdraw</button>
-            </div>
         </div>
-        <div class="container" style="padding: 20px;">
-            <div id="tasks-list"></div>
-            <div id="day-finished" style="display:none; text-align:center; padding:30px;">
-                <h3>All tasks completed for today! ✅</h3>
-            </div>
-        </div>
+        <div style="padding: 20px;" id="tasks-list"></div>
     </div>
 
     <div id="op-modal" class="modal">
         <div class="modal-content">
             <h3 id="modal-title"></h3>
-            <div id="modal-body"></div>
+            <p id="modal-body"></p>
             <button class="btn-confirm" onclick="closeModal()">Close</button>
         </div>
     </div>
 
 <script>
-    // بيانات الربط الخاصة بك
     const supabaseUrl = 'https://setalptyphrhbjcwmhoq.supabase.co';
     const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -74,17 +62,16 @@
         if (type === 'signup') {
             const { data, error } = await _supabase.auth.signUp({ email, password });
             if (error) alert("Error: " + error.message);
-            else alert("Account created! Please Login now.");
+            else alert("Account created! Please login.");
         } else {
             const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
             if (error) alert("Error: " + error.message);
-            else loadAppData(data.user);
+            else checkProfile(data.user);
         }
     }
 
-    async function loadAppData(user) {
+    async function checkProfile(user) {
         currentUser = user;
-        // جلب البيانات من جدول البروفايل
         const { data, error } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
         
         if (data) {
@@ -93,61 +80,35 @@
             document.getElementById('main-app').style.display = 'block';
             updateUI();
         } else {
-            console.log("No profile data yet, wait 2 seconds...");
-            setTimeout(() => loadAppData(user), 2000); // محاولة ثانية إذا كان الـ Trigger بطيئاً
+            alert("Setting up your profile... Please try logging in again in 3 seconds.");
         }
     }
 
-    function renderTasks() {
+    function updateUI() {
+        document.getElementById('balance').innerText = userData.balance.toFixed(2);
         const list = document.getElementById('tasks-list');
         list.innerHTML = '';
-        if (userData.tasks_completed >= 10) { 
-            document.getElementById('day-finished').style.display = 'block'; 
-            return; 
-        }
-        for (let i = userData.tasks_completed; i < 10; i++) {
+        for (let i = 0; i < 5; i++) {
             list.innerHTML += `
                 <div class="task-card">
-                    <div>
-                        <h4>Task #${301 + i}</h4>
-                        <span style="color:var(--green); font-weight:bold;">Profit: +$4.44</span>
-                        <button class="btn-confirm" onclick="submitTask(${i})">Submit</button>
-                    </div>
+                    <div><b>Order #${501 + i}</b><br><small>Profit: $4.44</small></div>
+                    <button class="btn-confirm" onclick="runTask()">Submit</button>
                 </div>`;
         }
     }
 
-    async function submitTask(id) {
-        if (!userData.is_vip) { 
-            showModal('deposit'); 
-            return; 
-        }
-        const newBal = userData.balance + 4.44;
-        const newCount = userData.tasks_completed + 1;
-        const { error } = await _supabase.from('profiles').update({ balance: newBal, tasks_completed: newCount }).eq('id', currentUser.id);
-        if(!error) { 
-            userData.balance = newBal; 
-            userData.tasks_completed = newCount; 
-            updateUI(); 
+    function runTask() {
+        if (!userData.is_vip) {
+            showModal("VIP Required", "Please deposit to your wallet: TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg");
+        } else {
+            alert("Task Submitted!");
         }
     }
 
-    function updateUI() { 
-        document.getElementById('balance').innerText = userData.balance.toFixed(2); 
-        renderTasks(); 
-    }
-
-    function showModal(type) {
+    function showModal(t, b) {
+        document.getElementById('modal-title').innerText = t;
+        document.getElementById('modal-body').innerText = b;
         document.getElementById('op-modal').style.display = 'flex';
-        const title = document.getElementById('modal-title');
-        const body = document.getElementById('modal-body');
-        if(type === 'deposit') {
-            title.innerText = "VIP Activation Required";
-            body.innerHTML = "To start tasks, please deposit USDT (TRC20) to:<br><br><b style='color:var(--primary)'>TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg</b><br><br>After payment, contact support.";
-        } else { 
-            title.innerText = "Withdraw"; 
-            body.innerText = "Minimum withdraw $100. Complete your tasks first."; 
-        }
     }
 
     function closeModal() { document.getElementById('op-modal').style.display = 'none'; }
