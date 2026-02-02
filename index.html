@@ -3,115 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trendyol VIP - Global Partners</title>
+    <title>Trendyol VIP - Logistics Alliance</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --gray: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; }
         
-        .promo-bar { background: #2c3e50; color: white; text-align: center; padding: 8px; font-size: 11px; font-weight: bold; }
-        .header { background: var(--dark); color: white; padding: 30px 20px; text-align: center; border-bottom: 5px solid var(--primary); position: relative; }
-        .lang-btn { position: absolute; top: 15px; right: 15px; background: transparent; color: white; border: 1px solid white; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
-        
+        .header { background: var(--dark); color: white; padding: 25px 20px; text-align: center; border-bottom: 5px solid var(--primary); position: sticky; top: 0; z-index: 100; }
         .balance-container { display: flex; justify-content: space-around; margin-top: 15px; }
         .bal-box { text-align: center; }
-        .bal-label { font-size: 11px; color: #aaa; text-transform: uppercase; }
-        .bal-val { font-size: 22px; font-weight: bold; color: var(--gold); }
+        .bal-label { font-size: 10px; color: #888; text-transform: uppercase; }
+        .bal-val { font-size: 18px; font-weight: bold; color: var(--gold); }
 
-        .vip-tiers { display: flex; gap: 10px; padding: 20px 15px; overflow-x: auto; scrollbar-width: none; }
-        .vip-card { min-width: 150px; background: white; border-radius: 15px; padding: 15px; text-align: center; border: 2px solid #eee; flex-shrink: 0; }
-        .vip-card.active { border-color: var(--gold); background: #fffdf5; }
+        .vip-status-bar { background: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; font-size: 13px; }
         
-        .ref-section { background: white; margin: 15px; padding: 20px; border-radius: 15px; border: 1px dashed var(--primary); text-align: center; }
-        .ref-title { font-weight: bold; font-size: 14px; margin-bottom: 10px; color: var(--primary); }
-        .ref-link { background: #eee; padding: 8px; border-radius: 5px; font-size: 12px; word-break: break-all; }
-
-        .action-btns { display: flex; gap: 10px; justify-content: center; padding: 0 20px; margin-top: 20px; }
-        .btn-act { flex: 1; padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
-
-        .task-list { padding: 10px 15px 100px 15px; }
-        .task-card { background: white; border-radius: 15px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .task-profit-val { color: var(--green); font-weight: bold; }
-
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 25px; padding: 30px; text-align: center; }
-        #auth-screen { position: fixed; inset: 0; background: white; z-index: 100000; display: flex; align-items: center; justify-content: center; }
-        .inp { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 10px; box-sizing: border-box; }
-        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
+        .task-list { padding: 15px; padding-bottom: 100px; }
+        .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative; }
+        .task-header { display: flex; gap: 12px; align-items: center; }
+        .product-img { width: 60px; height: 60px; background: #f9f9f9; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 1px solid #eee; }
+        .task-info { flex: 1; }
+        .task-name { font-weight: bold; font-size: 14px; color: #333; margin-bottom: 4px; }
+        .task-profit { color: var(--green); font-weight: bold; font-size: 14px; }
         
-        .withdrawal-rule { background: #fff4e5; border-left: 4px solid #f39c12; padding: 12px; margin: 15px; border-radius: 8px; font-size: 11px; color: #845ef7; font-weight: bold; }
+        .shipping-info { background: #fafafa; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 11px; color: #666; border-left: 3px solid var(--primary); }
+        
+        .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
+        .btn-submit.done { background: #ccc; cursor: not-allowed; }
+
+        .action-btns { position: fixed; bottom: 0; width: 100%; display: flex; gap: 10px; padding: 15px; background: white; box-sizing: border-box; border-top: 1px solid #eee; }
+        .btn-act { flex: 1; padding: 14px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 20px; padding: 30px; text-align: center; }
+        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 10px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; margin-top: 15px; }
+
+        #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .inp { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div style="width: 100%; max-width: 320px; text-align: center;">
-            <h1 style="color: var(--primary);">Trendyol VIP</h1>
+            <h2 style="color: var(--primary);">Elite Logistics Portal</h2>
             <input type="email" id="email" class="inp" placeholder="Email Address">
             <input type="password" id="password" class="inp" placeholder="Password">
             <button class="btn-main" onclick="handleAuth('login')">Log In</button>
-            <p onclick="handleAuth('signup')" style="cursor:pointer; margin-top:15px; font-size:13px;">Don't have an account? <b>Sign Up</b></p>
+            <p onclick="handleAuth('signup')" style="font-size:12px; margin-top:15px; color:#888; cursor:pointer;">Membership Registration</p>
         </div>
     </div>
 
     <div id="main-app" style="display:none;">
-        <div class="promo-bar">🔒 SECURE INVESTMENT PROTOCOL ACTIVE</div>
-        
         <div class="header">
-            <button class="lang-btn" onclick="toggleLang()" id="lang-btn">العربية</button>
             <div class="balance-container">
                 <div class="bal-box">
-                    <div class="bal-label">Capital (Locked)</div>
+                    <div class="bal-label">Capital (30D Locked)</div>
                     <div class="bal-val">$ <span id="cap-bal">0.00</span></div>
                 </div>
                 <div class="bal-box">
-                    <div class="bal-label">Profit (Pending)</div>
+                    <div class="bal-label">Profits (Network)</div>
                     <div class="bal-val" style="color: var(--green);">$ <span id="prof-bal">0.00</span></div>
                 </div>
             </div>
-            <div class="action-btns">
-                <button class="btn-act" style="background:var(--green);" onclick="openModal('deposit')">Deposit</button>
-                <button class="btn-act" style="background:#e74c3c;" onclick="openModal('withdraw')">Withdraw</button>
-            </div>
         </div>
 
-        <div class="withdrawal-rule" id="rule-text">
-            ⚠️ Capital released after 45 days. Profits require 3 active referrals to unlock.
-        </div>
-
-        <div class="ref-section">
-            <div class="ref-title">My Referral Link</div>
-            <div class="ref-link" id="ref-url">https://maqdem.github.io/?ref=USER123</div>
-            <div style="font-size: 10px; color: #888; margin-top: 5px;">Share to unlock your profits faster!</div>
-        </div>
-
-        <div class="vip-tiers">
-            <div class="vip-card active">
-                <div class="vip-name">VIP 1</div>
-                <div class="vip-price">$360</div>
-                <div class="vip-profit">Daily: $40.00</div>
-            </div>
-            <div class="vip-card">
-                <div class="vip-name">VIP 2</div>
-                <div class="vip-price">$1080</div>
-                <div class="vip-profit">Daily: $130.00</div>
-            </div>
-            <div class="vip-card">
-                <div class="vip-name">VIP 3</div>
-                <div class="vip-price">$3240</div>
-                <div class="vip-profit">Daily: $450.00</div>
-            </div>
+        <div class="vip-status-bar">
+            <span id="tier-display">Tier: Loading...</span>
+            <span style="color:var(--primary)" id="task-counter">Tasks: 0/10</span>
         </div>
 
         <div class="task-list" id="tasks-container"></div>
+
+        <div class="action-btns">
+            <button class="btn-act" style="background:var(--green);" onclick="openModal('deposit')">Deposit</button>
+            <button class="btn-act" style="background:var(--primary);" onclick="openModal('withdraw')">Withdraw</button>
+        </div>
     </div>
 
     <div id="modal" class="modal">
         <div class="modal-content">
             <h3 id="m-title"></h3>
-            <p id="m-desc"></p>
-            <div id="m-extra" style="background:#f9f9f9; padding:15px; border-radius:15px; margin:20px 0; word-break:break-all; font-weight: bold; color: var(--primary); border: 1px dashed var(--gold);"></div>
-            <button class="btn-main" onclick="closeModal()">Understood</button>
+            <p id="m-desc" style="font-size:13px; color:#666; margin:15px 0;"></p>
+            <div id="m-extra" style="font-weight:bold; color:var(--primary); background:#f9f9f9; padding:12px; border-radius:8px; word-break:break-all;"></div>
+            <button class="btn-main" onclick="closeModal()">Close</button>
         </div>
     </div>
 
@@ -120,7 +94,20 @@
     const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let currentLang = 'en', userData = {};
+    let userData = {}, completedCount = 0;
+
+    const taskData = [
+        { name: "Premium Logistics A1", city: "Riyadh, KSA", user: "A. Al-Fahad", img: "📦" },
+        { name: "Electronics Node X9", city: "Dubai, UAE", user: "S. Mansoor", img: "⚡" },
+        { name: "Luxury Goods Export", city: "Doha, QA", user: "H. Jassim", img: "💎" },
+        { name: "Global Tech Shipment", city: "London, UK", user: "Mark R.", img: "📱" },
+        { name: "Secure Asset Transfer", city: "New York, USA", user: "John D.", img: "🛡️" },
+        { name: "Automotive Parts Node", city: "Berlin, DE", user: "Klaus H.", img: "⚙️" },
+        { name: "High-Value Order 07", city: "Singapore, SG", user: "Lee W.", img: "🚢" },
+        { name: "Fashion Supply Chain", city: "Paris, FR", user: "Marie C.", img: "👜" },
+        { name: "Energy Module Logistic", city: "Oslo, NO", user: "Olav S.", img: "🔋" },
+        { name: "AI Server Hardware", city: "Tokyo, JP", user: "Yuki T.", img: "💾" }
+    ];
 
     async function handleAuth(type) {
         const email = document.getElementById('email').value, password = document.getElementById('password').value;
@@ -134,47 +121,58 @@
             userData = data; 
             document.getElementById('auth-screen').style.display = 'none'; 
             document.getElementById('main-app').style.display = 'block'; 
-            document.getElementById('ref-url').innerText = `https://maqdem.github.io/?ref=${user.id.substring(0,6)}`;
             updateUI(); 
         } else setTimeout(() => loadData(user), 2000);
     }
 
-    function toggleLang() {
-        currentLang = currentLang === 'en' ? 'ar' : 'en';
-        document.getElementById('html-tag').dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-        updateUI();
-    }
-
     function updateUI() {
         document.getElementById('cap-bal').innerText = userData.balance ? userData.balance.toFixed(2) : "0.00";
-        document.getElementById('prof-bal').innerText = "120.00"; // رقم وهمي للربح لإغراء المستخدم
-        document.getElementById('rule-text').innerText = currentLang === 'en' 
-            ? "⚠️ Capital released after 45 days. Profits require 3 active referrals to unlock." 
-            : "⚠️ يتم تحرير رأس المال بعد 45 يومًا. الأرباح تتطلب دعوة 3 أعضاء نشطين لفك القفل.";
-        
+        document.getElementById('prof-bal').innerText = (completedCount * 4).toFixed(2);
+        document.getElementById('tier-display').innerText = userData.is_vip ? "VIP Tier 1" : "Standard";
+        document.getElementById('task-counter').innerText = `Tasks: ${completedCount}/10`;
+
         const container = document.getElementById('tasks-container');
-        container.innerHTML = `<div class="task-card">
-            <div style="font-weight:bold">Daily Task #1</div>
-            <div class="task-profit-val">+ $40.00</div>
-            <button class="btn-main" style="margin-top:10px;" onclick="submitTask()">Grab Order</button>
-        </div>`;
+        container.innerHTML = '';
+        taskData.forEach((task, index) => {
+            const isDone = index < completedCount;
+            container.innerHTML += `
+                <div class="task-card">
+                    <div class="task-header">
+                        <div class="product-img">${task.img}</div>
+                        <div class="task-info">
+                            <div class="task-name">${task.name}</div>
+                            <div class="task-profit">+ $4.00 Commission</div>
+                        </div>
+                    </div>
+                    <div class="shipping-info">Destination: <b>${task.city}</b> | Client: <b>${task.user}</b></div>
+                    <button class="btn-submit ${isDone ? 'done' : ''}" onclick="doTask(${index})">
+                        ${isDone ? 'Settled' : 'Execute Node'}
+                    </button>
+                </div>`;
+        });
     }
 
-    function submitTask() { if (!userData.is_vip) openModal('deposit'); else alert("Task submitted for audit."); }
+    function doTask(index) {
+        if (!userData.is_vip) return openModal('deposit');
+        if (index === completedCount) {
+            completedCount++;
+            updateUI();
+        } else {
+            alert("Please follow the sequence.");
+        }
+    }
 
     function openModal(type) {
         document.getElementById('modal').style.display = 'flex';
         const extra = document.getElementById('m-extra');
         if (type === 'deposit') {
-            document.getElementById('m-title').innerText = "Upgrade VIP";
-            document.getElementById('m-desc').innerText = "Deposit 360 USDT to activate your account:";
+            document.getElementById('m-title').innerText = "Upgrade Activation";
+            document.getElementById('m-desc').innerText = "To unlock Tier 1 tasks and earn $40 daily, deposit 360 USDT to:";
             extra.innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
         } else {
-            document.getElementById('m-title').innerText = "Withdrawal Blocked";
-            document.getElementById('m-desc').innerText = currentLang === 'en' 
-                ? "Your capital is locked for 45 days. Your profits are locked until you invite 3 active VIP members." 
-                : "رأس مالك مجمد لمدة 45 يومًا. أرباحك مجمدة حتى تقوم بدعوة 3 أعضاء VIP نشطين.";
-            extra.innerText = "Current Referrals: 0/3";
+            document.getElementById('m-title').innerText = "Withdrawal Policy";
+            document.getElementById('m-desc').innerText = "Capital Release: 30-day security cycle. Profits: Requires 3 active VIP network referrals.";
+            extra.innerText = "Status: Awaiting Network Growth";
         }
     }
 
