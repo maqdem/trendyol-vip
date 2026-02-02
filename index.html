@@ -3,40 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trendyol VIP - Logistics Alliance</title>
+    <title>Elite Logistics - Network Growth</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --gray: #f4f7f6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; }
         
         .header { background: var(--dark); color: white; padding: 25px 20px; text-align: center; border-bottom: 5px solid var(--primary); position: sticky; top: 0; z-index: 100; }
-        .balance-container { display: flex; justify-content: space-around; margin-top: 15px; }
-        .bal-box { text-align: center; }
-        .bal-label { font-size: 10px; color: #888; text-transform: uppercase; }
-        .bal-val { font-size: 18px; font-weight: bold; color: var(--gold); }
+        .balance-container { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px; margin-top: 15px; }
+        .bal-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; flex: 1; min-width: 100px; }
+        .bal-label { font-size: 9px; color: #888; text-transform: uppercase; }
+        .bal-val { font-size: 16px; font-weight: bold; color: var(--gold); }
 
-        .vip-status-bar { background: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; font-size: 13px; }
+        .network-boost { background: #fff4e5; border: 1px solid #ffe0b2; padding: 10px; margin: 15px; border-radius: 10px; font-size: 12px; text-align: center; color: #e65100; font-weight: bold; }
         
-        .task-list { padding: 15px; padding-bottom: 100px; }
-        .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative; }
-        .task-header { display: flex; gap: 12px; align-items: center; }
-        .product-img { width: 60px; height: 60px; background: #f9f9f9; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 1px solid #eee; }
-        .task-info { flex: 1; }
-        .task-name { font-weight: bold; font-size: 14px; color: #333; margin-bottom: 4px; }
+        .task-list { padding: 15px; padding-bottom: 120px; }
+        .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #eee; }
         .task-profit { color: var(--green); font-weight: bold; font-size: 14px; }
-        
-        .shipping-info { background: #fafafa; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 11px; color: #666; border-left: 3px solid var(--primary); }
         
         .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
         .btn-submit.done { background: #ccc; cursor: not-allowed; }
 
-        .action-btns { position: fixed; bottom: 0; width: 100%; display: flex; gap: 10px; padding: 15px; background: white; box-sizing: border-box; border-top: 1px solid #eee; }
-        .btn-act { flex: 1; padding: 14px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
+        .action-btns { position: fixed; bottom: 0; width: 100%; display: flex; gap: 10px; padding: 15px; background: white; border-top: 1px solid #eee; box-sizing: border-box; }
+        .btn-act { flex: 1; padding: 14px; border: none; border-radius: 10px; color: white; font-weight: bold; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 20px; padding: 30px; text-align: center; }
-        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 10px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; margin-top: 15px; }
-
+        
         #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .inp { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
     </style>
@@ -45,11 +38,10 @@
 
     <div id="auth-screen">
         <div style="width: 100%; max-width: 320px; text-align: center;">
-            <h2 style="color: var(--primary);">Elite Logistics Portal</h2>
-            <input type="email" id="email" class="inp" placeholder="Email Address">
-            <input type="password" id="password" class="inp" placeholder="Password">
-            <button class="btn-main" onclick="handleAuth('login')">Log In</button>
-            <p onclick="handleAuth('signup')" style="font-size:12px; margin-top:15px; color:#888; cursor:pointer;">Membership Registration</p>
+            <h2 style="color: var(--primary);">Elite Network Portal</h2>
+            <input type="email" id="email" class="inp" placeholder="Official Email">
+            <input type="password" id="password" class="inp" placeholder="Security Key">
+            <button style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;" onclick="handleAuth('login')">Login</button>
         </div>
     </div>
 
@@ -57,19 +49,22 @@
         <div class="header">
             <div class="balance-container">
                 <div class="bal-box">
-                    <div class="bal-label">Capital (30D Locked)</div>
+                    <div class="bal-label">Capital (30D)</div>
                     <div class="bal-val">$ <span id="cap-bal">0.00</span></div>
                 </div>
                 <div class="bal-box">
-                    <div class="bal-label">Profits (Network)</div>
+                    <div class="bal-label">Profits (45D Lock)</div>
                     <div class="bal-val" style="color: var(--green);">$ <span id="prof-bal">0.00</span></div>
+                </div>
+                <div class="bal-box">
+                    <div class="bal-label">Bonus Multiplier</div>
+                    <div class="bal-val" style="color: #2196f3;">x<span id="multiplier">1.0</span></div>
                 </div>
             </div>
         </div>
 
-        <div class="vip-status-bar">
-            <span id="tier-display">Tier: Loading...</span>
-            <span style="color:var(--primary)" id="task-counter">Tasks: 0/10</span>
+        <div class="network-boost" id="boost-msg">
+            🚀 Invite 1 member to unlock your 45-day profit cycle!
         </div>
 
         <div class="task-list" id="tasks-container"></div>
@@ -85,7 +80,7 @@
             <h3 id="m-title"></h3>
             <p id="m-desc" style="font-size:13px; color:#666; margin:15px 0;"></p>
             <div id="m-extra" style="font-weight:bold; color:var(--primary); background:#f9f9f9; padding:12px; border-radius:8px; word-break:break-all;"></div>
-            <button class="btn-main" onclick="closeModal()">Close</button>
+            <button style="width:100%; padding:12px; background:var(--dark); color:white; border:none; border-radius:8px; margin-top:10px;" onclick="closeModal()">Confirm</button>
         </div>
     </div>
 
@@ -94,59 +89,58 @@
     const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let userData = {}, completedCount = 0;
+    let userData = {}, completedCount = 0, referralCount = 0;
 
     const taskData = [
-        { name: "Premium Logistics A1", city: "Riyadh, KSA", user: "A. Al-Fahad", img: "📦" },
-        { name: "Electronics Node X9", city: "Dubai, UAE", user: "S. Mansoor", img: "⚡" },
-        { name: "Luxury Goods Export", city: "Doha, QA", user: "H. Jassim", img: "💎" },
-        { name: "Global Tech Shipment", city: "London, UK", user: "Mark R.", img: "📱" },
-        { name: "Secure Asset Transfer", city: "New York, USA", user: "John D.", img: "🛡️" },
-        { name: "Automotive Parts Node", city: "Berlin, DE", user: "Klaus H.", img: "⚙️" },
-        { name: "High-Value Order 07", city: "Singapore, SG", user: "Lee W.", img: "🚢" },
-        { name: "Fashion Supply Chain", city: "Paris, FR", user: "Marie C.", img: "👜" },
-        { name: "Energy Module Logistic", city: "Oslo, NO", user: "Olav S.", img: "🔋" },
-        { name: "AI Server Hardware", city: "Tokyo, JP", user: "Yuki T.", img: "💾" }
+        { name: "Global Node Settlement 01", city: "Riyadh", user: "A. Fahad", img: "📦" },
+        { name: "Global Node Settlement 02", city: "London", user: "John S.", img: "⚡" },
+        { name: "Global Node Settlement 03", city: "Dubai", user: "M. Rashid", img: "💎" },
+        { name: "Global Node Settlement 04", city: "Tokyo", user: "Yuki K.", img: "📱" },
+        { name: "Global Node Settlement 05", city: "Berlin", user: "Klaus M.", img: "🛡️" },
+        { name: "Global Node Settlement 06", city: "Paris", user: "Chloè", img: "⚙️" },
+        { name: "Global Node Settlement 07", city: "Oslo", user: "Erik", img: "🚢" },
+        { name: "Global Node Settlement 08", city: "Doha", user: "Hamad", img: "👜" },
+        { name: "Global Node Settlement 09", city: "New York", user: "Sarah", img: "🔋" },
+        { name: "Global Node Settlement 10", city: "Seoul", user: "Kim", img: "💾" }
     ];
 
     async function handleAuth(type) {
         const email = document.getElementById('email').value, password = document.getElementById('password').value;
-        const { data, error } = type === 'signup' ? await _supabase.auth.signUp({ email, password }) : await _supabase.auth.signInWithPassword({ email, password });
-        if (error) alert(error.message); else if (type === 'login') loadData(data.user);
+        const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+        if (error) alert("Access Denied"); else loadData(data.user);
     }
 
     async function loadData(user) {
         const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
         if (data) { 
-            userData = data; 
+            userData = data; referralCount = data.referral_count || 0;
             document.getElementById('auth-screen').style.display = 'none'; 
             document.getElementById('main-app').style.display = 'block'; 
             updateUI(); 
-        } else setTimeout(() => loadData(user), 2000);
+        }
     }
 
     function updateUI() {
+        const multiplier = 1 + (referralCount * 0.1); // زيادة 10% لكل شخص
+        document.getElementById('multiplier').innerText = multiplier.toFixed(1);
         document.getElementById('cap-bal').innerText = userData.balance ? userData.balance.toFixed(2) : "0.00";
-        document.getElementById('prof-bal').innerText = (completedCount * 4).toFixed(2);
-        document.getElementById('tier-display').innerText = userData.is_vip ? "VIP Tier 1" : "Standard";
-        document.getElementById('task-counter').innerText = `Tasks: ${completedCount}/10`;
-
+        document.getElementById('prof-bal').innerText = (completedCount * 4 * multiplier).toFixed(2);
+        
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
         taskData.forEach((task, index) => {
             const isDone = index < completedCount;
             container.innerHTML += `
                 <div class="task-card">
-                    <div class="task-header">
-                        <div class="product-img">${task.img}</div>
-                        <div class="task-info">
-                            <div class="task-name">${task.name}</div>
-                            <div class="task-profit">+ $4.00 Commission</div>
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <div style="font-size:30px;">${task.img}</div>
+                        <div style="flex:1;">
+                            <div style="font-weight:bold; font-size:14px;">${task.name}</div>
+                            <div class="task-profit">+ $${(4 * multiplier).toFixed(2)} Audit Value</div>
                         </div>
                     </div>
-                    <div class="shipping-info">Destination: <b>${task.city}</b> | Client: <b>${task.user}</b></div>
                     <button class="btn-submit ${isDone ? 'done' : ''}" onclick="doTask(${index})">
-                        ${isDone ? 'Settled' : 'Execute Node'}
+                        ${isDone ? 'Node Verified' : 'Execute Settlement'}
                     </button>
                 </div>`;
         });
@@ -154,25 +148,20 @@
 
     function doTask(index) {
         if (!userData.is_vip) return openModal('deposit');
-        if (index === completedCount) {
-            completedCount++;
-            updateUI();
-        } else {
-            alert("Please follow the sequence.");
-        }
+        if (index === completedCount) { completedCount++; updateUI(); }
     }
 
     function openModal(type) {
         document.getElementById('modal').style.display = 'flex';
         const extra = document.getElementById('m-extra');
         if (type === 'deposit') {
-            document.getElementById('m-title').innerText = "Upgrade Activation";
-            document.getElementById('m-desc').innerText = "To unlock Tier 1 tasks and earn $40 daily, deposit 360 USDT to:";
+            document.getElementById('m-title').innerText = "Network Activation";
+            document.getElementById('m-desc').innerText = "Deposit 360 USDT to start your 30-day capital and 45-day profit cycles:";
             extra.innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
         } else {
-            document.getElementById('m-title').innerText = "Withdrawal Policy";
-            document.getElementById('m-desc').innerText = "Capital Release: 30-day security cycle. Profits: Requires 3 active VIP network referrals.";
-            extra.innerText = "Status: Awaiting Network Growth";
+            document.getElementById('m-title').innerText = "Withdrawal Protocol";
+            document.getElementById('m-desc').innerText = "1. Capital release: 30 days.\n2. Profits release: 45 days AND at least 1 active network referral.";
+            extra.innerText = `Current Referrals: ${referralCount}/1`;
         }
     }
 
