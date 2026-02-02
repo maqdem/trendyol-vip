@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Logistics - Network Growth</title>
+    <title>Elite Logistics - VIP Expansion</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --gray: #f4f7f6; }
@@ -15,7 +15,13 @@
         .bal-label { font-size: 9px; color: #888; text-transform: uppercase; }
         .bal-val { font-size: 16px; font-weight: bold; color: var(--gold); }
 
-        .network-boost { background: #fff4e5; border: 1px solid #ffe0b2; padding: 10px; margin: 15px; border-radius: 10px; font-size: 12px; text-align: center; color: #e65100; font-weight: bold; }
+        /* قسم الترقية الجديد */
+        .upgrade-section { padding: 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; background: #fff; border-bottom: 1px solid #eee; }
+        .tier-card { min-width: 160px; background: #fdfdfd; border: 1px solid #eee; border-radius: 15px; padding: 15px; text-align: center; flex-shrink: 0; }
+        .tier-card.active { border-color: var(--gold); background: #fffdf5; box-shadow: 0 4px 10px rgba(197, 160, 89, 0.2); }
+        .tier-name { font-weight: bold; color: var(--dark); margin-bottom: 5px; }
+        .tier-price { color: var(--primary); font-size: 18px; font-weight: bold; }
+        .btn-upgrade { background: var(--dark); color: white; border: none; padding: 8px 15px; border-radius: 20px; font-size: 11px; margin-top: 10px; cursor: pointer; width: 100%; }
         
         .task-list { padding: 15px; padding-bottom: 120px; }
         .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #eee; }
@@ -25,7 +31,7 @@
         .btn-submit.done { background: #ccc; cursor: not-allowed; }
 
         .action-btns { position: fixed; bottom: 0; width: 100%; display: flex; gap: 10px; padding: 15px; background: white; border-top: 1px solid #eee; box-sizing: border-box; }
-        .btn-act { flex: 1; padding: 14px; border: none; border-radius: 10px; color: white; font-weight: bold; }
+        .btn-act { flex: 1; padding: 14px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 20px; padding: 30px; text-align: center; }
@@ -53,18 +59,28 @@
                     <div class="bal-val">$ <span id="cap-bal">0.00</span></div>
                 </div>
                 <div class="bal-box">
-                    <div class="bal-label">Profits (45D Lock)</div>
+                    <div class="bal-label">Profits (45D)</div>
                     <div class="bal-val" style="color: var(--green);">$ <span id="prof-bal">0.00</span></div>
-                </div>
-                <div class="bal-box">
-                    <div class="bal-label">Bonus Multiplier</div>
-                    <div class="bal-val" style="color: #2196f3;">x<span id="multiplier">1.0</span></div>
                 </div>
             </div>
         </div>
 
-        <div class="network-boost" id="boost-msg">
-            🚀 Invite 1 member to unlock your 45-day profit cycle!
+        <div class="upgrade-section">
+            <div class="tier-card active" id="t1">
+                <div class="tier-name">VIP 1</div>
+                <div class="tier-price">$360</div>
+                <button class="btn-upgrade" onclick="openUpgrade(360, 'VIP 1')">Current Plan</button>
+            </div>
+            <div class="tier-card" id="t2">
+                <div class="tier-name">VIP 2</div>
+                <div class="tier-price">$1080</div>
+                <button class="btn-upgrade" onclick="openUpgrade(1080, 'VIP 2')">Upgrade</button>
+            </div>
+            <div class="tier-card" id="t3">
+                <div class="tier-name">VIP 3</div>
+                <div class="tier-price">$3240</div>
+                <button class="btn-upgrade" onclick="openUpgrade(3240, 'VIP 3')">Upgrade</button>
+            </div>
         </div>
 
         <div class="task-list" id="tasks-container"></div>
@@ -89,20 +105,7 @@
     const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let userData = {}, completedCount = 0, referralCount = 0;
-
-    const taskData = [
-        { name: "Global Node Settlement 01", city: "Riyadh", user: "A. Fahad", img: "📦" },
-        { name: "Global Node Settlement 02", city: "London", user: "John S.", img: "⚡" },
-        { name: "Global Node Settlement 03", city: "Dubai", user: "M. Rashid", img: "💎" },
-        { name: "Global Node Settlement 04", city: "Tokyo", user: "Yuki K.", img: "📱" },
-        { name: "Global Node Settlement 05", city: "Berlin", user: "Klaus M.", img: "🛡️" },
-        { name: "Global Node Settlement 06", city: "Paris", user: "Chloè", img: "⚙️" },
-        { name: "Global Node Settlement 07", city: "Oslo", user: "Erik", img: "🚢" },
-        { name: "Global Node Settlement 08", city: "Doha", user: "Hamad", img: "👜" },
-        { name: "Global Node Settlement 09", city: "New York", user: "Sarah", img: "🔋" },
-        { name: "Global Node Settlement 10", city: "Seoul", user: "Kim", img: "💾" }
-    ];
+    let userData = {}, completedCount = 0;
 
     async function handleAuth(type) {
         const email = document.getElementById('email').value, password = document.getElementById('password').value;
@@ -113,7 +116,7 @@
     async function loadData(user) {
         const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
         if (data) { 
-            userData = data; referralCount = data.referral_count || 0;
+            userData = data;
             document.getElementById('auth-screen').style.display = 'none'; 
             document.getElementById('main-app').style.display = 'block'; 
             updateUI(); 
@@ -121,47 +124,50 @@
     }
 
     function updateUI() {
-        const multiplier = 1 + (referralCount * 0.1); // زيادة 10% لكل شخص
-        document.getElementById('multiplier').innerText = multiplier.toFixed(1);
         document.getElementById('cap-bal').innerText = userData.balance ? userData.balance.toFixed(2) : "0.00";
-        document.getElementById('prof-bal').innerText = (completedCount * 4 * multiplier).toFixed(2);
+        document.getElementById('prof-bal').innerText = (completedCount * 4).toFixed(2);
         
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
-        taskData.forEach((task, index) => {
-            const isDone = index < completedCount;
+        for(let i=1; i<=10; i++) {
+            const isDone = i <= completedCount;
             container.innerHTML += `
                 <div class="task-card">
                     <div style="display:flex; gap:12px; align-items:center;">
-                        <div style="font-size:30px;">${task.img}</div>
+                        <div style="font-size:30px;">📦</div>
                         <div style="flex:1;">
-                            <div style="font-weight:bold; font-size:14px;">${task.name}</div>
-                            <div class="task-profit">+ $${(4 * multiplier).toFixed(2)} Audit Value</div>
+                            <div style="font-weight:bold; font-size:14px;">Global Node Settlement 0${i}</div>
+                            <div class="task-profit">+ $4.00 Audit Value</div>
                         </div>
                     </div>
-                    <button class="btn-submit ${isDone ? 'done' : ''}" onclick="doTask(${index})">
+                    <button class="btn-submit ${isDone ? 'done' : ''}" onclick="doTask(${i-1})">
                         ${isDone ? 'Node Verified' : 'Execute Settlement'}
                     </button>
                 </div>`;
-        });
+        }
     }
 
     function doTask(index) {
-        if (!userData.is_vip) return openModal('deposit');
+        if (!userData.is_vip) return openUpgrade(360, 'VIP 1');
         if (index === completedCount) { completedCount++; updateUI(); }
+    }
+
+    function openUpgrade(amount, tier) {
+        document.getElementById('modal').style.display = 'flex';
+        document.getElementById('m-title').innerText = `Upgrade to ${tier}`;
+        document.getElementById('m-desc').innerText = `To activate ${tier} nodes and unlock higher daily profits, transfer exactly ${amount} USDT to:`;
+        document.getElementById('m-extra').innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
     }
 
     function openModal(type) {
         document.getElementById('modal').style.display = 'flex';
         const extra = document.getElementById('m-extra');
         if (type === 'deposit') {
-            document.getElementById('m-title').innerText = "Network Activation";
-            document.getElementById('m-desc').innerText = "Deposit 360 USDT to start your 30-day capital and 45-day profit cycles:";
-            extra.innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
+            openUpgrade(360, 'VIP 1');
         } else {
             document.getElementById('m-title').innerText = "Withdrawal Protocol";
-            document.getElementById('m-desc').innerText = "1. Capital release: 30 days.\n2. Profits release: 45 days AND at least 1 active network referral.";
-            extra.innerText = `Current Referrals: ${referralCount}/1`;
+            document.getElementById('m-desc').innerText = "Capital release cycle: 30 days. Profits release cycle: 45 days with 1 network referral.";
+            extra.innerText = "Status: Locked";
         }
     }
 
