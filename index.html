@@ -3,47 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Logistics - Node Portal</title>
+    <title>Elite Logistics - Operations</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --gray: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; }
-        .header { background: var(--dark); color: white; padding: 25px 20px; text-align: center; border-bottom: 5px solid var(--primary); position: sticky; top: 0; z-index: 100; }
-        .balance-container { display: flex; justify-content: space-around; gap: 10px; margin-top: 15px; }
-        .bal-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; flex: 1; }
-        .bal-label { font-size: 9px; color: #888; text-transform: uppercase; }
-        .bal-val { font-size: 16px; font-weight: bold; color: var(--gold); }
-        .task-list { padding: 15px; padding-bottom: 150px; }
-        .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #eee; }
-        .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
-        .btn-submit.done { background: #ccc; cursor: not-allowed; }
-        #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        body { font-family: sans-serif; background: var(--gray); margin: 0; padding: 0; }
+        .header { background: var(--dark); color: white; padding: 20px; text-align: center; border-bottom: 4px solid var(--primary); sticky; top: 0; z-index: 100; }
+        .bal-container { display: flex; gap: 10px; margin-top: 10px; }
+        .bal-box { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; flex: 1; text-align: center; font-size: 12px; }
+        .bal-box span { display: block; font-size: 18px; font-weight: bold; color: var(--gold); }
+        .task-list { padding: 15px; padding-bottom: 100px; }
+        .task-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #eee; }
+        .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 10px; cursor: pointer; }
+        .btn-submit.done { background: #ddd !important; color: #888; cursor: default; }
+        #auth-screen { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .inp { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
-        .complete-msg { text-align: center; padding: 30px; background: white; border-radius: 15px; border: 2px dashed var(--primary); margin: 20px; }
+        .msg-box { text-align: center; padding: 30px; background: white; border-radius: 15px; border: 2px dashed var(--primary); }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
-        <div style="width: 100%; max-width: 320px; text-align: center;">
-            <h2 style="color: var(--primary);">Elite Logistics</h2>
-            <input type="email" id="email" class="inp" placeholder="Email Address">
-            <input type="password" id="password" class="inp" placeholder="Access Key">
+        <div style="width:100%; max-width:320px; text-align:center;">
+            <h2 style="color:var(--primary);">Elite Logistics</h2>
+            <input type="email" id="email" class="inp" placeholder="Email">
+            <input type="password" id="password" class="inp" placeholder="Password">
             <button class="btn-submit" onclick="handleAuth()">Login</button>
         </div>
     </div>
 
     <div id="main-app" style="display:none;">
         <div class="header">
-            <div class="balance-container">
-                <div class="bal-box">
-                    <div class="bal-label">Capital</div>
-                    <div class="bal-val">$ <span id="cap-bal">0.00</span></div>
-                </div>
-                <div class="bal-box">
-                    <div class="bal-label">Profit</div>
-                    <div class="bal-val" style="color: var(--green);">$ <span id="prof-bal">0.00</span></div>
-                </div>
+            <div class="bal-container">
+                <div class="bal-box">Capital<span id="cap-bal">0.00</span></div>
+                <div class="bal-box">Profit<span id="prof-bal">0.00</span></div>
             </div>
         </div>
         <div class="task-list" id="tasks-container"></div>
@@ -54,14 +47,12 @@
     const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let userData = {};
-    let completedCount = 0;
+    let userData = {}, completedCount = 0;
 
     async function handleAuth() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-        if (error) alert("Login Failed"); else loadData(data.user);
+        const e = document.getElementById('email').value, p = document.getElementById('password').value;
+        const { data, error } = await _supabase.auth.signInWithPassword({ email: e, password: p });
+        if (error) alert("Error: " + error.message); else loadData(data.user);
     }
 
     async function loadData(user) {
@@ -69,11 +60,11 @@
         if (data) { 
             userData = data;
             
-            // نظام الـ 24 ساعة
-            const lastUpdate = data.updated_at ? new Date(data.updated_at).toDateString() : "";
+            // تحقق من اليوم لتجديد المهام
+            const lastDate = data.updated_at ? new Date(data.updated_at).toDateString() : "";
             const today = new Date().toDateString();
 
-            if (lastUpdate !== today && lastUpdate !== "") {
+            if (lastDate !== "" && lastDate !== today) {
                 completedCount = 0;
                 await _supabase.from('profiles').update({ completed_tasks: 0 }).eq('id', user.id);
             } else {
@@ -87,17 +78,17 @@
     }
 
     function updateUI() {
-        document.getElementById('cap-bal').innerText = (userData.balance || 0).toFixed(2);
-        document.getElementById('prof-bal').innerText = (userData.profit_balance || 0).toFixed(2);
+        document.getElementById('cap-bal').innerText = "$" + (userData.balance || 0).toFixed(2);
+        document.getElementById('prof-bal').innerText = "$" + (userData.profit_balance || 0).toFixed(2);
         
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
 
         if (completedCount >= 10) {
             container.innerHTML = `
-                <div class="complete-msg">
-                    <h3>✅ Daily Tasks Completed</h3>
-                    <p style="font-size:12px; color:#666;">You have reached the limit. Please return in 24 hours.</p>
+                <div class="msg-box">
+                    <h3>✅ Done for Today</h3>
+                    <p>All nodes verified. Return in 24 hours.</p>
                 </div>`;
             return;
         }
@@ -107,18 +98,18 @@
             container.innerHTML += `
                 <div class="task-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span>Node #${100+i} Audit</span>
-                        <span style="color:var(--green); font-weight:bold;">+$4.00</span>
+                        <div style="font-weight:bold;">Shipment Node #${100+i}</div>
+                        <div style="color:var(--green); font-weight:bold;">+$4.00</div>
                     </div>
                     <button class="btn-submit ${isDone ? 'done' : ''}" onclick="doTask(${i-1})">
-                        ${isDone ? 'Verified' : 'Execute Order'}
+                        ${isDone ? 'Verified ✓' : 'Execute Freight Audit'}
                     </button>
                 </div>`;
         }
     }
 
     async function doTask(index) {
-        if (!userData.is_vip) return alert("Activate VIP 1 first");
+        if (!userData.is_vip) return alert("Activate VIP 1");
         if (index === completedCount) {
             completedCount++;
             const newProfit = (userData.profit_balance || 0) + 4;
@@ -133,7 +124,7 @@
                 userData.profit_balance = newProfit;
                 updateUI();
             } else {
-                alert("Error: " + error.message);
+                alert("Sync Error: " + error.message);
                 completedCount--;
             }
         }
