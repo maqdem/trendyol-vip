@@ -1,12 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Logistics - Node Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --gray: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; }
+        .header { background: var(--dark); color: white; padding: 25px 20px; text-align: center; border-bottom: 5px solid var(--primary); position: sticky; top: 0; z-index: 100; }
+        .balance-container { display: flex; justify-content: space-around; gap: 10px; margin-top: 15px; }
+        .bal-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; flex: 1; }
+        .bal-label { font-size: 9px; color: #888; text-transform: uppercase; }
+        .bal-val { font-size: 16px; font-weight: bold; color: var(--gold); }
+        .task-list { padding: 15px; padding-bottom: 150px; }
+        .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #eee; }
+        .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
+        .btn-submit.done { background: #ccc; cursor: not-allowed; }
+        #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .inp { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
+        .complete-msg { text-align: center; padding: 30px; background: white; border-radius: 15px; border: 2px dashed var(--primary); margin: 20px; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-screen">
+        <div style="width: 100%; max-width: 320px; text-align: center;">
+            <h2 style="color: var(--primary);">Elite Logistics</h2>
+            <input type="email" id="email" class="inp" placeholder="Email Address">
+            <input type="password" id="password" class="inp" placeholder="Access Key">
+            <button class="btn-submit" onclick="handleAuth()">Login</button>
+        </div>
+    </div>
+
+    <div id="main-app" style="display:none;">
+        <div class="header">
+            <div class="balance-container">
+                <div class="bal-box">
+                    <div class="bal-label">Capital</div>
+                    <div class="bal-val">$ <span id="cap-bal">0.00</span></div>
+                </div>
+                <div class="bal-box">
+                    <div class="bal-label">Profit</div>
+                    <div class="bal-val" style="color: var(--green);">$ <span id="prof-bal">0.00</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="task-list" id="tasks-container"></div>
+    </div>
+
 <script>
     const supabaseUrl = 'https://setalptyphrhbjcwmhoq.supabase.co';
     const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let userData = {}, completedCount = 0;
+    let userData = {};
+    let completedCount = 0;
 
     async function handleAuth() {
-        const email = document.getElementById('email').value, password = document.getElementById('password').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
         const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
         if (error) alert("Login Failed"); else loadData(data.user);
     }
@@ -16,18 +69,16 @@
         if (data) { 
             userData = data;
             
-            // --- منطق تجديد المهام كل 24 ساعة ---
+            // نظام الـ 24 ساعة
             const lastUpdate = data.updated_at ? new Date(data.updated_at).toDateString() : "";
             const today = new Date().toDateString();
 
             if (lastUpdate !== today && lastUpdate !== "") {
-                // إذا دخل في يوم جديد، نصفر المهام في قاعدة البيانات
                 completedCount = 0;
                 await _supabase.from('profiles').update({ completed_tasks: 0 }).eq('id', user.id);
             } else {
                 completedCount = data.completed_tasks || 0;
             }
-            // ----------------------------------
 
             document.getElementById('auth-screen').style.display = 'none'; 
             document.getElementById('main-app').style.display = 'block'; 
@@ -39,24 +90,14 @@
         document.getElementById('cap-bal').innerText = (userData.balance || 0).toFixed(2);
         document.getElementById('prof-bal').innerText = (userData.profit_balance || 0).toFixed(2);
         
-        if (userData.is_vip) {
-            const btn1 = document.getElementById('btn-vip1');
-            btn1.innerText = "Activated";
-            btn1.classList.add('locked');
-            btn1.onclick = null;
-            document.getElementById('card-vip1').style.borderColor = "#27ae60";
-        }
-
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
 
-        // إذا أتم المستخدم 10 مهام، نظهر له رسالة الانتهاء
         if (completedCount >= 10) {
             container.innerHTML = `
-                <div style="text-align:center; padding:40px; background:white; border-radius:15px; border:2px dashed var(--primary);">
-                    <div style="font-size:40px;">✅</div>
-                    <h3 style="color:var(--dark);">Daily Tasks Completed</h3>
-                    <p style="color:#666; font-size:13px;">Your audit limit has been reached for today. Please return after 24 hours for new nodes.</p>
+                <div class="complete-msg">
+                    <h3>✅ Daily Tasks Completed</h3>
+                    <p style="font-size:12px; color:#666;">You have reached the limit. Please return in 24 hours.</p>
                 </div>`;
             return;
         }
@@ -66,59 +107,37 @@
             container.innerHTML += `
                 <div class="task-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span>Node #${100+i} Settlement</span>
+                        <span>Node #${100+i} Audit</span>
                         <span style="color:var(--green); font-weight:bold;">+$4.00</span>
                     </div>
                     <button class="btn-submit ${isDone ? 'done' : ''}" onclick="doTask(${i-1})">
-                        ${isDone ? 'Node Verified' : 'Execute Order'}
+                        ${isDone ? 'Verified' : 'Execute Order'}
                     </button>
                 </div>`;
         }
     }
 
     async function doTask(index) {
-        if (!userData.is_vip) {
-            alert("Please activate VIP 1 first.");
-            return;
-        }
+        if (!userData.is_vip) return alert("Activate VIP 1 first");
         if (index === completedCount) {
             completedCount++;
-            const newProfit = (userData.profit_balance || 0) + 4; // ربح تراكمي لا يصفر
+            const newProfit = (userData.profit_balance || 0) + 4;
             
-            const { error } = await _supabase.from('profiles')
-                .update({ 
-                    completed_tasks: completedCount, 
-                    profit_balance: newProfit,
-                    updated_at: new Date().toISOString() // تسجيل وقت العملية
-                })
-                .eq('id', userData.id);
+            const { error } = await _supabase.from('profiles').update({ 
+                completed_tasks: completedCount, 
+                profit_balance: newProfit,
+                updated_at: new Date().toISOString()
+            }).eq('id', userData.id);
 
             if (!error) {
                 userData.profit_balance = newProfit;
                 updateUI();
             } else {
-                alert("Sync Error: " + error.message);
+                alert("Error: " + error.message);
                 completedCount--;
             }
         }
     }
-
-    function openUpgrade(amount, tier) {
-        document.getElementById('modal').style.display = 'flex';
-        document.getElementById('m-title').innerText = `Activate ${tier}`;
-        document.getElementById('m-desc').innerText = `Transfer ${amount} USDT (TRC20) to your dedicated audit address:`;
-        document.getElementById('m-extra').innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
-    }
-
-    function openModal(type) {
-        if (type === 'deposit') openUpgrade(360, 'VIP 1');
-        else {
-            document.getElementById('modal').style.display = 'flex';
-            document.getElementById('m-title').innerText = "Withdrawal Protocol";
-            document.getElementById('m-desc').innerText = "Capital Lock: 30 Days. Profits: 45 Days Audit. 1 Referral Required.";
-            document.getElementById('m-extra').innerText = "Status: Locked";
-        }
-    }
-
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
 </script>
+</body>
+</html>
