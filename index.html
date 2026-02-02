@@ -1,41 +1,53 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" id="html-tag">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Logistics - VIP Expansion</title>
+    <title>Elite Logistics Global - Node Operations</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --gray: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; overflow-x: hidden; }
         
+        /* الهيدر والمبالغ */
         .header { background: var(--dark); color: white; padding: 25px 20px; text-align: center; border-bottom: 5px solid var(--primary); position: sticky; top: 0; z-index: 100; }
-        .balance-container { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px; margin-top: 15px; }
-        .bal-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; flex: 1; min-width: 100px; }
-        .bal-label { font-size: 9px; color: #888; text-transform: uppercase; }
+        .balance-container { display: flex; justify-content: space-around; gap: 10px; margin-top: 15px; }
+        .bal-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; flex: 1; }
+        .bal-label { font-size: 9px; color: #888; text-transform: uppercase; margin-bottom: 5px; }
         .bal-val { font-size: 16px; font-weight: bold; color: var(--gold); }
 
-        /* قسم الترقية الجديد */
-        .upgrade-section { padding: 15px; display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; background: #fff; border-bottom: 1px solid #eee; }
-        .tier-card { min-width: 160px; background: #fdfdfd; border: 1px solid #eee; border-radius: 15px; padding: 15px; text-align: center; flex-shrink: 0; }
+        /* قسم الترقية */
+        .upgrade-section { padding: 15px; display: flex; gap: 10px; overflow-x: auto; background: white; border-bottom: 1px solid #eee; }
+        .tier-card { min-width: 140px; background: #fdfdfd; border: 1px solid #eee; border-radius: 15px; padding: 15px; text-align: center; flex-shrink: 0; transition: 0.3s; }
         .tier-card.active { border-color: var(--gold); background: #fffdf5; box-shadow: 0 4px 10px rgba(197, 160, 89, 0.2); }
-        .tier-name { font-weight: bold; color: var(--dark); margin-bottom: 5px; }
         .tier-price { color: var(--primary); font-size: 18px; font-weight: bold; }
-        .btn-upgrade { background: var(--dark); color: white; border: none; padding: 8px 15px; border-radius: 20px; font-size: 11px; margin-top: 10px; cursor: pointer; width: 100%; }
-        
-        .task-list { padding: 15px; padding-bottom: 120px; }
-        .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #eee; }
-        .task-profit { color: var(--green); font-weight: bold; font-size: 14px; }
-        
+        .btn-upgrade { background: var(--dark); color: white; border: none; padding: 8px; border-radius: 20px; font-size: 10px; margin-top: 10px; cursor: pointer; width: 100%; }
+
+        /* قائمة المهام */
+        .task-list { padding: 15px; padding-bottom: 150px; }
+        .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .task-profit { color: var(--green); font-weight: bold; font-size: 13px; margin-top: 5px; }
         .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
         .btn-submit.done { background: #ccc; cursor: not-allowed; }
 
-        .action-btns { position: fixed; bottom: 0; width: 100%; display: flex; gap: 10px; padding: 15px; background: white; border-top: 1px solid #eee; box-sizing: border-box; }
+        /* أزرار السحب والإيداع السفلي */
+        .action-btns { position: fixed; bottom: 0; width: 100%; display: flex; gap: 10px; padding: 15px; background: white; border-top: 1px solid #eee; box-sizing: border-box; z-index: 900; }
         .btn-act { flex: 1; padding: 14px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+        /* الدردشة والبوت */
+        .chat-trigger { position: fixed; bottom: 85px; right: 20px; background: var(--primary); width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); cursor: pointer; z-index: 1000; }
+        .chat-window { position: fixed; bottom: 100px; right: 20px; width: 320px; height: 480px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: none; flex-direction: column; z-index: 1001; overflow: hidden; }
+        .chat-header { background: var(--dark); color: white; padding: 15px; display: flex; justify-content: space-between; font-size: 14px; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8f9fa; }
+        .msg { padding: 10px 15px; border-radius: 15px; font-size: 12px; max-width: 85%; line-height: 1.4; }
+        .bot-msg { background: #e9ecef; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .user-msg { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .chat-options { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+        .opt-btn { background: white; border: 1px solid var(--primary); color: var(--primary); padding: 5px 10px; border-radius: 15px; font-size: 11px; cursor: pointer; }
+
+        /* النوافذ المنبثقة والشاشات */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 20px; padding: 30px; text-align: center; }
-        
         #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .inp { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
     </style>
@@ -44,10 +56,11 @@
 
     <div id="auth-screen">
         <div style="width: 100%; max-width: 320px; text-align: center;">
-            <h2 style="color: var(--primary);">Elite Network Portal</h2>
-            <input type="email" id="email" class="inp" placeholder="Official Email">
-            <input type="password" id="password" class="inp" placeholder="Security Key">
-            <button style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;" onclick="handleAuth('login')">Login</button>
+            <h2 style="color: var(--primary);">Elite Logistics</h2>
+            <p style="font-size: 12px; color: #666; margin-bottom: 25px;">Global Node Management Portal</p>
+            <input type="email" id="email" class="inp" placeholder="Email Address">
+            <input type="password" id="password" class="inp" placeholder="Access Key">
+            <button style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="handleAuth()">Login to Server</button>
         </div>
     </div>
 
@@ -55,11 +68,11 @@
         <div class="header">
             <div class="balance-container">
                 <div class="bal-box">
-                    <div class="bal-label">Capital (30D)</div>
+                    <div class="bal-label">Capital (30D Lock)</div>
                     <div class="bal-val">$ <span id="cap-bal">0.00</span></div>
                 </div>
                 <div class="bal-box">
-                    <div class="bal-label">Profits (45D)</div>
+                    <div class="bal-label">Profit (45D Lock)</div>
                     <div class="bal-val" style="color: var(--green);">$ <span id="prof-bal">0.00</span></div>
                 </div>
             </div>
@@ -67,17 +80,17 @@
 
         <div class="upgrade-section">
             <div class="tier-card active" id="t1">
-                <div class="tier-name">VIP 1</div>
+                <div style="font-size:12px; font-weight:bold;">VIP 1</div>
                 <div class="tier-price">$360</div>
-                <button class="btn-upgrade" onclick="openUpgrade(360, 'VIP 1')">Current Plan</button>
+                <button class="btn-upgrade" onclick="openUpgrade(360, 'VIP 1')">Active Plan</button>
             </div>
             <div class="tier-card" id="t2">
-                <div class="tier-name">VIP 2</div>
+                <div style="font-size:12px; font-weight:bold;">VIP 2</div>
                 <div class="tier-price">$1080</div>
                 <button class="btn-upgrade" onclick="openUpgrade(1080, 'VIP 2')">Upgrade</button>
             </div>
             <div class="tier-card" id="t3">
-                <div class="tier-name">VIP 3</div>
+                <div style="font-size:12px; font-weight:bold;">VIP 3</div>
                 <div class="tier-price">$3240</div>
                 <button class="btn-upgrade" onclick="openUpgrade(3240, 'VIP 3')">Upgrade</button>
             </div>
@@ -91,12 +104,29 @@
         </div>
     </div>
 
+    <div class="chat-trigger" onclick="toggleChat()">🎧</div>
+    <div class="chat-window" id="chat-window">
+        <div class="chat-header">
+            <span>Elite Support Bot (Online)</span>
+            <span style="cursor:pointer;" onclick="toggleChat()">✕</span>
+        </div>
+        <div class="chat-body" id="chat-body">
+            <div class="msg bot-msg">Hello! I am your AI assistant. How can I help you scale your earnings today?</div>
+            <div class="chat-options">
+                <button class="opt-btn" onclick="botReply('How to earn?')">How to earn?</button>
+                <button class="opt-btn" onclick="botReply('Withdrawal Rules')">Withdrawal Rules</button>
+                <button class="opt-btn" onclick="botReply('Is it safe?')">Is it safe?</button>
+                <button class="opt-btn" onclick="botReply('Upgrade VIP')">Upgrade VIP</button>
+            </div>
+        </div>
+    </div>
+
     <div id="modal" class="modal">
         <div class="modal-content">
             <h3 id="m-title"></h3>
-            <p id="m-desc" style="font-size:13px; color:#666; margin:15px 0;"></p>
-            <div id="m-extra" style="font-weight:bold; color:var(--primary); background:#f9f9f9; padding:12px; border-radius:8px; word-break:break-all;"></div>
-            <button style="width:100%; padding:12px; background:var(--dark); color:white; border:none; border-radius:8px; margin-top:10px;" onclick="closeModal()">Confirm</button>
+            <p id="m-desc" style="font-size:13px; color:#666; margin:15px 0; line-height:1.5;"></p>
+            <div id="m-extra" style="font-weight:bold; color:var(--primary); background:#f9f9f9; padding:12px; border-radius:10px; word-break:break-all; font-family:monospace;"></div>
+            <button style="width:100%; padding:12px; background:var(--dark); color:white; border:none; border-radius:10px; margin-top:15px; cursor:pointer;" onclick="closeModal()">Understood</button>
         </div>
     </div>
 
@@ -107,10 +137,10 @@
 
     let userData = {}, completedCount = 0;
 
-    async function handleAuth(type) {
+    async function handleAuth() {
         const email = document.getElementById('email').value, password = document.getElementById('password').value;
         const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-        if (error) alert("Access Denied"); else loadData(data.user);
+        if (error) alert("Server access denied. Check credentials."); else loadData(data.user);
     }
 
     async function loadData(user) {
@@ -134,14 +164,14 @@
             container.innerHTML += `
                 <div class="task-card">
                     <div style="display:flex; gap:12px; align-items:center;">
-                        <div style="font-size:30px;">📦</div>
+                        <div style="font-size:25px; background:#f0f0f0; padding:10px; border-radius:10px;">📦</div>
                         <div style="flex:1;">
-                            <div style="font-weight:bold; font-size:14px;">Global Node Settlement 0${i}</div>
-                            <div class="task-profit">+ $4.00 Audit Value</div>
+                            <div style="font-weight:bold; font-size:13px;">Logistics Settlement Node #${100+i}</div>
+                            <div class="task-profit">+ $4.00 Commission</div>
                         </div>
                     </div>
                     <button class="btn-submit ${isDone ? 'done' : ''}" onclick="doTask(${i-1})">
-                        ${isDone ? 'Node Verified' : 'Execute Settlement'}
+                        ${isDone ? 'Node Settled' : 'Execute Order'}
                     </button>
                 </div>`;
         }
@@ -152,22 +182,41 @@
         if (index === completedCount) { completedCount++; updateUI(); }
     }
 
+    function toggleChat() {
+        const win = document.getElementById('chat-window');
+        win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function botReply(q) {
+        const body = document.getElementById('chat-body');
+        body.innerHTML += `<div class="msg user-msg">${q}</div>`;
+        
+        let r = "Connecting to an agent...";
+        if(q.includes('earn')) r = "Complete 10 tasks daily. Commissions are added to your pending balance automatically.";
+        if(q.includes('Rules')) r = "Capital: 30-day security lock. Profits: 45-day audit lock + 1 active VIP referral required.";
+        if(q.includes('safe')) r = "We use decentralized logistics nodes. All funds are insured by the Global Freight Fund (GFF).";
+        if(q.includes('Upgrade')) r = "Go to the VIP section and click Upgrade to increase your daily node capacity.";
+
+        setTimeout(() => {
+            body.innerHTML += `<div class="msg bot-msg">${r}</div>`;
+            body.scrollTop = body.scrollHeight;
+        }, 600);
+    }
+
     function openUpgrade(amount, tier) {
         document.getElementById('modal').style.display = 'flex';
-        document.getElementById('m-title').innerText = `Upgrade to ${tier}`;
-        document.getElementById('m-desc').innerText = `To activate ${tier} nodes and unlock higher daily profits, transfer exactly ${amount} USDT to:`;
+        document.getElementById('m-title').innerText = `Activate ${tier}`;
+        document.getElementById('m-desc').innerText = `To process high-value nodes, transfer ${amount} USDT (TRC20) to your dedicated audit address:`;
         document.getElementById('m-extra').innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
     }
 
     function openModal(type) {
-        document.getElementById('modal').style.display = 'flex';
-        const extra = document.getElementById('m-extra');
-        if (type === 'deposit') {
-            openUpgrade(360, 'VIP 1');
-        } else {
+        if (type === 'deposit') openUpgrade(360, 'VIP 1');
+        else {
+            document.getElementById('modal').style.display = 'flex';
             document.getElementById('m-title').innerText = "Withdrawal Protocol";
-            document.getElementById('m-desc').innerText = "Capital release cycle: 30 days. Profits release cycle: 45 days with 1 network referral.";
-            extra.innerText = "Status: Locked";
+            document.getElementById('m-desc').innerText = "Security Notice:\n- Capital Lock: 30 Days\n- Profits Lock: 45 Days\n- Requirement: 1 Active Referral";
+            document.getElementById('m-extra').innerText = "Status: Verification Pending";
         }
     }
 
