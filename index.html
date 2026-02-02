@@ -3,35 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trendyol VIP - Global</title>
+    <title>Trendyol VIP - Global Partners</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --red: #e74c3c; --gray: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--gray); margin: 0; padding: 0; transition: 0.3s; }
-        
+        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; }
         .header { background: var(--dark); color: white; padding: 40px 20px; text-align: center; border-bottom: 5px solid var(--primary); position: relative; }
         .lang-btn { position: absolute; top: 15px; right: 15px; background: transparent; color: white; border: 1px solid white; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
         .balance-val { font-size: 38px; font-weight: bold; color: var(--gold); }
-        
-        .action-btns { display: flex; gap: 15px; justify-content: center; margin-top: 20px; padding: 0 20px; }
+        .action-btns { display: flex; gap: 15px; justify-content: center; margin: 20px 0; padding: 0 20px; }
         .btn-act { flex: 1; padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
-
-        .section-title { padding: 20px; font-weight: bold; color: #333; display: flex; justify-content: space-between; }
+        .section-title { padding: 20px; font-weight: bold; display: flex; justify-content: space-between; }
         .task-list { padding: 0 15px 100px 15px; }
         .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .task-img { width: 90px; height: 90px; border-radius: 12px; object-fit: cover; border: 1px solid #eee; }
+        .task-img-container { width: 90px; height: 90px; background: #eee; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; }
+        .task-img { width: 100%; height: 100%; object-fit: contain; }
         .task-info { flex: 1; }
         .task-name { font-weight: bold; font-size: 14px; color: #222; margin-bottom: 5px; }
         .task-profit { color: var(--green); font-weight: bold; }
         .btn-submit { background: var(--primary); color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 25px; padding: 30px; text-align: center; position: relative; }
-        
+        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 25px; padding: 30px; text-align: center; }
         #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         .inp { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; margin-bottom: 10px; }
         .btn-main { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
-        
         [dir="rtl"] { text-align: right; }
         [dir="rtl"] .lang-btn { right: auto; left: 15px; }
     </style>
@@ -58,12 +53,7 @@
                 <button class="btn-act" style="background:var(--red);" onclick="openModal('withdraw')">Withdraw</button>
             </div>
         </div>
-
-        <div class="section-title">
-            <span id="txt-tasks">Daily Tasks</span>
-            <span id="task-count" style="color: var(--primary);">0/10</span>
-        </div>
-
+        <div class="section-title"><span id="txt-tasks">Daily Tasks</span><span id="task-count" style="color: var(--primary);">0/10</span></div>
         <div id="tasks-container" class="task-list"></div>
     </div>
 
@@ -81,40 +71,28 @@
     const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let currentLang = 'en';
-    let userData = {};
-    let currentUser = null;
+    let currentLang = 'en', userData = {}, currentUser = null;
 
-    // مصفوفة المنتجات بالصور والأسماء الحقيقية
+    // صور جديدة ومضمونة 100% من روابط مباشرة
     const products = [
-        { name: "iPhone 15 Pro Max 256GB - Blue Titanium", price: 1199, profit: 4.44, img: "https://m.media-amazon.com/images/I/81SigAnN7SL._AC_SL1500_.jpg" },
-        { name: "Sony WH-1000XM5 Wireless Noise Canceling", price: 348, profit: 4.44, img: "https://m.media-amazon.com/images/I/61+99vS22-L._AC_SL1500_.jpg" },
-        { name: "Apple MacBook Air Laptop M2 chip", price: 999, profit: 4.44, img: "https://m.media-amazon.com/images/I/71f5Eu5lJSL._AC_SL1500_.jpg" },
-        { name: "Samsung Galaxy S24 Ultra 5G AI Smartphone", price: 1299, profit: 4.44, img: "https://m.media-amazon.com/images/I/71WjsZ74trL._AC_SL1500_.jpg" },
-        { name: "PlayStation®5 Digital Edition (slim)", price: 449, profit: 4.44, img: "https://m.media-amazon.com/images/I/51051Hi9B8L._AC_SL1500_.jpg" }
+        { name: "iPhone 15 Pro Max 256GB", price: 1199, profit: 4.44, img: "https://vjrqlysqpvhgffxzzvgz.supabase.co/storage/v1/object/public/assets/iphone.png?t=iphone" },
+        { name: "Sony Wireless Headphones XM5", price: 348, profit: 4.44, img: "https://vjrqlysqpvhgffxzzvgz.supabase.co/storage/v1/object/public/assets/sony.png" },
+        { name: "MacBook Air Laptop M2", price: 999, profit: 4.44, img: "https://vjrqlysqpvhgffxzzvgz.supabase.co/storage/v1/object/public/assets/mac.png" },
+        { name: "Samsung Galaxy S24 Ultra", price: 1299, profit: 4.44, img: "https://vjrqlysqpvhgffxzzvgz.supabase.co/storage/v1/object/public/assets/samsung.png" },
+        { name: "PlayStation 5 Console Slim", price: 449, profit: 4.44, img: "https://vjrqlysqpvhgffxzzvgz.supabase.co/storage/v1/object/public/assets/ps5.png" }
     ];
 
     async function handleAuth(type) {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const { data, error } = type === 'signup' 
-            ? await _supabase.auth.signUp({ email, password }) 
-            : await _supabase.auth.signInWithPassword({ email, password });
-        
-        if (error) alert(error.message);
-        else if (type === 'login') loadData(data.user);
-        else alert("Account created! Please login.");
+        const email = document.getElementById('email').value, password = document.getElementById('password').value;
+        const { data, error } = type === 'signup' ? await _supabase.auth.signUp({ email, password }) : await _supabase.auth.signInWithPassword({ email, password });
+        if (error) alert(error.message); else if (type === 'login') loadData(data.user); else alert("Success! Now login.");
     }
 
     async function loadData(user) {
         currentUser = user;
         const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
-        if (data) {
-            userData = data;
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            updateUI();
-        } else { setTimeout(() => loadData(user), 2000); }
+        if (data) { userData = data; document.getElementById('auth-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; updateUI(); }
+        else { setTimeout(() => loadData(user), 2000); }
     }
 
     function toggleLang() {
@@ -132,48 +110,28 @@
         
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
-        
-        products.forEach((p, i) => {
+        products.forEach((p) => {
             container.innerHTML += `
                 <div class="task-card">
-                    <img src="${p.img}" class="task-img">
-                    <div class="task-info">
-                        <div class="task-name">${p.name}</div>
-                        <div class="task-profit">+ $${p.profit}</div>
-                    </div>
+                    <div class="task-img-container"><img src="${p.img}" class="task-img" onerror="this.src='https://via.placeholder.com/100?text=Product'"></div>
+                    <div class="task-info"><div class="task-name">${p.name}</div><div class="task-profit">+ $${p.profit}</div></div>
                     <button class="btn-submit" onclick="submitTask()">${currentLang === 'en' ? 'Submit' : 'إرسال'}</button>
                 </div>`;
         });
     }
 
-    function submitTask() {
-        if (!userData.is_vip) {
-            openModal('deposit');
-        } else {
-            // كود تنفيذ المهمة الحقيقي يوضع هنا
-            alert("Success!");
-        }
-    }
+    function submitTask() { if (!userData.is_vip) openModal('deposit'); else alert("Task processed!"); }
 
     function openModal(type) {
-        const m = document.getElementById('modal');
-        const title = document.getElementById('m-title');
-        const desc = document.getElementById('m-desc');
-        const extra = document.getElementById('m-extra');
-        
-        m.style.display = 'flex';
+        document.getElementById('modal').style.display = 'flex';
         if (type === 'deposit') {
-            title.innerText = currentLang === 'en' ? "VIP Activation" : "تفعيل حساب VIP";
-            desc.innerText = currentLang === 'en' 
-                ? "To start earning, deposit to this TRC20 address. System will verify your payment automatically." 
-                : "لبدء جني الأرباح، قم بالإيداع في عنوان TRC20 أدناه. سيقوم النظام بالتحقق تلقائياً.";
-            extra.innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
+            document.getElementById('m-title').innerText = currentLang === 'en' ? "VIP Activation" : "تفعيل حساب VIP";
+            document.getElementById('m-desc').innerText = currentLang === 'en' ? "Deposit to this TRC20 address to unlock tasks." : "قم بالإيداع في عنوان TRC20 أدناه لفتح المهام.";
+            document.getElementById('m-extra').innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
         } else {
-            title.innerText = currentLang === 'en' ? "Withdrawal" : "سحب الأرباح";
-            desc.innerText = currentLang === 'en' 
-                ? "You must complete 10/10 tasks to withdraw. Current status: " + userData.tasks_completed + "/10"
-                : "يجب إكمال 10/10 مهام لتتمكن من السحب. حالتك الحالية: " + userData.tasks_completed + "/10";
-            extra.innerText = "Shipping Address: 1227 Fake St, NY, USA (Status: Pending)";
+            document.getElementById('m-title').innerText = currentLang === 'en' ? "Withdrawal" : "سحب الأرباح";
+            document.getElementById('m-desc').innerText = currentLang === 'en' ? "Complete all tasks first." : "أكمل جميع المهام أولاً.";
+            document.getElementById('m-extra').innerText = "Status: Pending Account Verification";
         }
     }
 
