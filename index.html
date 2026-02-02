@@ -3,37 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Logistics Global - Node Operations</title>
+    <title>Elite Logistics - Secure Node Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --gray: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; }
         .header { background: var(--dark); color: white; padding: 25px 20px; text-align: center; border-bottom: 5px solid var(--primary); position: sticky; top: 0; z-index: 100; }
         .balance-container { display: flex; justify-content: space-around; gap: 10px; margin-top: 15px; }
         .bal-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; flex: 1; }
-        .bal-label { font-size: 9px; color: #888; text-transform: uppercase; margin-bottom: 5px; }
+        .bal-label { font-size: 9px; color: #888; text-transform: uppercase; }
         .bal-val { font-size: 16px; font-weight: bold; color: var(--gold); }
-        .upgrade-section { padding: 15px; display: flex; gap: 10px; overflow-x: auto; background: white; border-bottom: 1px solid #eee; }
-        .tier-card { min-width: 140px; background: #fdfdfd; border: 1px solid #eee; border-radius: 15px; padding: 15px; text-align: center; flex-shrink: 0; transition: 0.3s; }
-        .tier-card.active { border-color: var(--gold); background: #fffdf5; box-shadow: 0 4px 10px rgba(197, 160, 89, 0.2); }
-        .tier-price { color: var(--primary); font-size: 18px; font-weight: bold; }
+        
+        /* تنسيق الـ VIP المقفل */
+        .upgrade-section { padding: 15px; display: flex; gap: 10px; overflow-x: auto; background: white; }
+        .tier-card { min-width: 140px; background: #fdfdfd; border: 1px solid #eee; border-radius: 15px; padding: 15px; text-align: center; }
+        .tier-card.active { border-color: var(--gold); background: #fffdf5; }
         .btn-upgrade { background: var(--dark); color: white; border: none; padding: 8px; border-radius: 20px; font-size: 10px; margin-top: 10px; cursor: pointer; width: 100%; }
+        .btn-upgrade.locked { background: #27ae60 !important; cursor: default; opacity: 0.8; }
+
         .task-list { padding: 15px; padding-bottom: 150px; }
-        .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .task-profit { color: var(--green); font-weight: bold; font-size: 13px; margin-top: 5px; }
+        .task-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #eee; }
         .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
         .btn-submit.done { background: #ccc; cursor: not-allowed; }
-        .action-btns { position: fixed; bottom: 0; width: 100%; display: flex; gap: 10px; padding: 15px; background: white; border-top: 1px solid #eee; box-sizing: border-box; z-index: 900; }
+
+        .action-btns { position: fixed; bottom: 0; width: 100%; display: flex; gap: 10px; padding: 15px; background: white; border-top: 1px solid #eee; box-sizing: border-box; }
         .btn-act { flex: 1; padding: 14px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
-        .chat-trigger { position: fixed; bottom: 85px; right: 20px; background: var(--primary); width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); cursor: pointer; z-index: 1000; }
-        .chat-window { position: fixed; bottom: 100px; right: 20px; width: 320px; height: 480px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: none; flex-direction: column; z-index: 1001; overflow: hidden; }
-        .chat-header { background: var(--dark); color: white; padding: 15px; display: flex; justify-content: space-between; font-size: 14px; }
-        .chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8f9fa; }
-        .msg { padding: 12px 15px; border-radius: 15px; font-size: 12px; max-width: 90%; line-height: 1.5; }
-        .bot-msg { background: #e9ecef; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .user-msg { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .chat-options { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-        .opt-btn { background: white; border: 1px solid var(--primary); color: var(--primary); padding: 5px 10px; border-radius: 15px; font-size: 11px; cursor: pointer; }
+        
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 20px; padding: 30px; text-align: center; }
         #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; }
@@ -47,7 +42,7 @@
             <h2 style="color: var(--primary);">Elite Logistics</h2>
             <input type="email" id="email" class="inp" placeholder="Email Address">
             <input type="password" id="password" class="inp" placeholder="Access Key">
-            <button style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;" onclick="handleAuth()">Login to Server</button>
+            <button style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;" onclick="handleAuth()">Login</button>
         </div>
     </div>
 
@@ -55,20 +50,29 @@
         <div class="header">
             <div class="balance-container">
                 <div class="bal-box">
-                    <div class="bal-label">Capital (30D Lock)</div>
+                    <div class="bal-label">Capital (30D)</div>
                     <div class="bal-val">$ <span id="cap-bal">0.00</span></div>
                 </div>
                 <div class="bal-box">
-                    <div class="bal-label">Profit (45D Lock)</div>
+                    <div class="bal-label">Profit (45D)</div>
                     <div class="bal-val" style="color: var(--green);">$ <span id="prof-bal">0.00</span></div>
                 </div>
             </div>
         </div>
 
         <div class="upgrade-section">
-            <div class="tier-card active" id="t1"><div>VIP 1</div><div class="tier-price">$360</div><button class="btn-upgrade" onclick="openUpgrade(360, 'VIP 1')">Plan Active</button></div>
-            <div class="tier-card" id="t2"><div>VIP 2</div><div class="tier-price">$1080</div><button class="btn-upgrade" onclick="openUpgrade(1080, 'VIP 2')">Upgrade</button></div>
-            <div class="tier-card" id="t3"><div>VIP 3</div><div class="tier-price">$3240</div><button class="btn-upgrade" onclick="openUpgrade(3240, 'VIP 3')">Upgrade</button></div>
+            <div class="tier-card" id="card-vip1">
+                <div>VIP 1</div><div style="color:var(--primary); font-weight:bold;">$360</div>
+                <button id="btn-vip1" class="btn-upgrade" onclick="openUpgrade(360, 'VIP 1')">Upgrade</button>
+            </div>
+            <div class="tier-card" id="card-vip2">
+                <div>VIP 2</div><div style="color:var(--primary); font-weight:bold;">$1080</div>
+                <button id="btn-vip2" class="btn-upgrade" onclick="openUpgrade(1080, 'VIP 2')">Upgrade</button>
+            </div>
+            <div class="tier-card" id="card-vip3">
+                <div>VIP 3</div><div style="color:var(--primary); font-weight:bold;">$3240</div>
+                <button id="btn-vip3" class="btn-upgrade" onclick="openUpgrade(3240, 'VIP 3')">Upgrade</button>
+            </div>
         </div>
 
         <div class="task-list" id="tasks-container"></div>
@@ -79,23 +83,10 @@
         </div>
     </div>
 
-    <div class="chat-trigger" onclick="toggleChat()">🎧</div>
-    <div class="chat-window" id="chat-window">
-        <div class="chat-header"><span>Elite Support Bot</span><span style="cursor:pointer;" onclick="toggleChat()">✕</span></div>
-        <div class="chat-body" id="chat-body">
-            <div class="msg bot-msg">Welcome. How can we assist you?</div>
-            <div class="chat-options">
-                <button class="opt-btn" onclick="botReply('Who are we?')">Who are we?</button>
-                <button class="opt-btn" onclick="botReply('Withdrawal Rules')">Withdrawal Rules</button>
-                <button class="opt-btn" onclick="botReply('Upgrade VIP')">Upgrade VIP</button>
-            </div>
-        </div>
-    </div>
-
     <div id="modal" class="modal">
         <div class="modal-content">
-            <h3 id="m-title"></h3><p id="m-desc"></p>
-            <div id="m-extra"></div>
+            <h3 id="m-title"></h3><p id="m-desc" style="font-size:13px; color:#666;"></p>
+            <div id="m-extra" style="font-weight:bold; color:var(--primary); word-break:break-all; background:#f4f4f4; padding:10px; border-radius:10px;"></div>
             <button style="width:100%; padding:12px; background:var(--dark); color:white; border:none; border-radius:10px; margin-top:15px;" onclick="closeModal()">Close</button>
         </div>
     </div>
@@ -110,11 +101,11 @@
     async function handleAuth() {
         const email = document.getElementById('email').value, password = document.getElementById('password').value;
         const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-        if (error) alert("Access Denied"); else loadData(data.user);
+        if (error) alert("Login Failed"); else loadData(data.user);
     }
 
     async function loadData(user) {
-        const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+        const { data, error } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
         if (data) { 
             userData = data;
             completedCount = data.completed_tasks || 0;
@@ -125,47 +116,79 @@
     }
 
     function updateUI() {
-        document.getElementById('cap-bal').innerText = userData.balance ? userData.balance.toFixed(2) : "0.00";
-        document.getElementById('prof-bal').innerText = userData.profit_balance ? userData.profit_balance.toFixed(2) : "0.00";
+        document.getElementById('cap-bal').innerText = (userData.balance || 0).toFixed(2);
+        document.getElementById('prof-bal').innerText = (userData.profit_balance || 0).toFixed(2);
         
+        // التحكم في أزرار الـ VIP
+        if (userData.is_vip) {
+            const btn1 = document.getElementById('btn-vip1');
+            btn1.innerText = "Activated";
+            btn1.classList.add('locked');
+            btn1.onclick = null;
+            document.getElementById('card-vip1').style.borderColor = "#27ae60";
+        }
+
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
         for(let i=1; i<=10; i++) {
             const isDone = i <= completedCount;
             container.innerHTML += `
                 <div class="task-card">
-                    <div style="display:flex; gap:12px; align-items:center;">
-                        <div style="font-size:25px;">📦</div>
-                        <div style="flex:1;"><div style="font-weight:bold;">Logistics Settlement Node #${100+i}</div><div class="task-profit">+ $4.00</div></div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>Node #${100+i} Settlement</span>
+                        <span style="color:var(--green); font-weight:bold;">+$4.00</span>
                     </div>
-                    <button class="btn-submit ${isDone ? 'done' : ''}" onclick="doTask(${i-1})">${isDone ? 'Verified' : 'Execute'}</button>
+                    <button class="btn-submit ${isDone ? 'done' : ''}" onclick="doTask(${i-1})">
+                        ${isDone ? 'Node Verified' : 'Execute Order'}
+                    </button>
                 </div>`;
         }
     }
 
     async function doTask(index) {
-        if (!userData.is_vip) return openUpgrade(360, 'VIP 1');
+        if (!userData.is_vip) {
+            alert("Please activate VIP 1 first.");
+            return;
+        }
         if (index === completedCount) {
             completedCount++;
             const newProfit = (completedCount * 4);
-            const { error } = await _supabase.from('profiles').update({ completed_tasks: completedCount, profit_balance: newProfit }).eq('id', userData.id);
-            if (!error) { userData.profit_balance = newProfit; updateUI(); }
+            
+            // تحديث قاعدة البيانات فوراً
+            const { error } = await _supabase.from('profiles')
+                .update({ 
+                    completed_tasks: completedCount, 
+                    profit_balance: newProfit 
+                })
+                .eq('id', userData.id);
+
+            if (!error) {
+                userData.profit_balance = newProfit;
+                updateUI();
+            } else {
+                alert("Sync Error: " + error.message);
+                completedCount--; // تراجع في حال الفشل
+            }
         }
     }
 
-    function botReply(q) {
-        const body = document.getElementById('chat-body');
-        body.innerHTML += `<div class="msg user-msg">${q}</div>`;
-        let r = "Audit in progress...";
-        if(q.includes('Who')) r = "<b>Elite Logistics Alliance</b> is a leading global technology provider established in 2018, operating across 140 countries. We provide insurance-backed node operations for global freight settlement.";
-        if(q.includes('Rules')) r = "Capital: 30-day security lock. Profits: 45-day audit cycle + 1 active network referral required.";
-        if(q.includes('Upgrade')) r = "VIP 2 ($1080) and VIP 3 ($3240) provide higher commissions. Upgrade via the dashboard.";
-        setTimeout(() => { body.innerHTML += `<div class="msg bot-msg">${r}</div>`; body.scrollTop = body.scrollHeight; }, 600);
+    function openUpgrade(amount, tier) {
+        document.getElementById('modal').style.display = 'flex';
+        document.getElementById('m-title').innerText = `Activate ${tier}`;
+        document.getElementById('m-desc').innerText = `Transfer ${amount} USDT (TRC20) to your dedicated audit address:`;
+        document.getElementById('m-extra').innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
     }
 
-    function toggleChat() { const win = document.getElementById('chat-window'); win.style.display = win.style.display === 'flex' ? 'none' : 'flex'; }
-    function openUpgrade(amount, tier) { document.getElementById('modal').style.display = 'flex'; document.getElementById('m-title').innerText = `Activate ${tier}`; document.getElementById('m-desc').innerText = `Transfer ${amount} USDT (TRC20) to:`; document.getElementById('m-extra').innerText = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg"; }
-    function openModal(type) { if (type === 'deposit') openUpgrade(360, 'VIP 1'); else { document.getElementById('modal').style.display = 'flex'; document.getElementById('m-title').innerText = "Audit Status"; document.getElementById('m-desc').innerText = "30-day capital lock & 45-day profit audit active. 1 referral required."; document.getElementById('m-extra').innerText = "Status: Locked"; } }
+    function openModal(type) {
+        if (type === 'deposit') openUpgrade(360, 'VIP 1');
+        else {
+            document.getElementById('modal').style.display = 'flex';
+            document.getElementById('m-title').innerText = "Withdrawal Protocol";
+            document.getElementById('m-desc').innerText = "Capital Lock: 30 Days. Profits: 45 Days Audit. 1 Referral Required.";
+            document.getElementById('m-extra').innerText = "Status: Locked";
+        }
+    }
+
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
 </script>
 </body>
