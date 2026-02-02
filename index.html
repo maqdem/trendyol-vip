@@ -3,105 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Logistics - Global Node Management</title>
+    <title>Elite Logistics - Operational Node</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #f27a1a; --dark: #111; --gold: #c5a059; --green: #27ae60; --gray: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 0; color: #333; }
-        
-        /* الهيدر المتطور */
-        .header { background: var(--dark); color: white; padding: 20px; text-align: center; border-bottom: 4px solid var(--primary); position: sticky; top: 0; z-index: 1000; }
-        .balance-container { display: flex; justify-content: space-around; gap: 10px; margin-top: 15px; }
-        .bal-box { background: rgba(255,255,255,0.07); padding: 12px; border-radius: 12px; flex: 1; border: 1px solid rgba(255,255,255,0.1); }
-        .bal-label { font-size: 10px; color: #aaa; text-transform: uppercase; margin-bottom: 5px; }
-        .bal-val { font-size: 18px; font-weight: bold; color: var(--gold); }
-
-        /* خريطة العمليات الوميضية */
-        .map-container { background: #1a1a1a; height: 160px; margin: 15px; border-radius: 15px; position: relative; overflow: hidden; border: 1px solid #333; }
-        .map-bg { width: 100%; height: 100%; opacity: 0.3; object-fit: cover; }
-        .dot { position: absolute; width: 6px; height: 6px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px var(--primary); animation: blink 2s infinite; }
-        @keyframes blink { 0% { opacity: 0.2; transform: scale(1); } 50% { opacity: 1; transform: scale(1.5); } 100% { opacity: 0.2; transform: scale(1); } }
-
-        /* قائمة المهام */
-        .task-list { padding: 15px; padding-bottom: 120px; }
-        .task-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 15px; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: 0.3s; }
-        .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .node-info { flex: 1; }
-        .node-title { font-weight: bold; font-size: 14px; color: var(--dark); }
-        .node-desc { font-size: 11px; color: #777; margin-top: 3px; }
-        .node-profit { color: var(--green); font-weight: bold; font-size: 15px; }
-        .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 14px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.3s; }
-        .btn-submit.done { background: #ececec; color: #888; cursor: not-allowed; }
-
-        /* باقات VIP */
-        .vip-section { padding: 0 15px; display: flex; gap: 10px; overflow-x: auto; margin-bottom: 10px; }
-        .vip-card { min-width: 130px; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; text-align: center; }
-        .vip-card.active { border-color: var(--green); background: #f0fff4; }
-        .vip-btn { background: var(--dark); color: white; border: none; padding: 7px 15px; border-radius: 15px; font-size: 11px; margin-top: 8px; width: 100%; cursor: pointer; }
-        .vip-btn.locked { background: var(--green); cursor: default; }
-
-        /* شاشة الدخول */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--gray); margin: 0; padding: 0; }
+        .header { background: var(--dark); color: white; padding: 20px; text-align: center; border-bottom: 4px solid var(--primary); sticky; top: 0; z-index: 100; }
+        .bal-container { display: flex; gap: 10px; margin-top: 10px; }
+        .bal-box { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; flex: 1; text-align: center; }
+        .bal-box span { display: block; font-size: 18px; font-weight: bold; color: var(--gold); }
+        .task-list { padding: 15px; padding-bottom: 100px; }
+        .task-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        .btn-submit.done { background: #ddd !important; color: #888; }
         #auth-screen { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-box { width: 100%; max-width: 350px; text-align: center; }
-        .inp { width: 100%; padding: 16px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 12px; font-size: 14px; box-sizing: border-box; }
-
-        .footer-nav { position: fixed; bottom: 0; width: 100%; display: flex; background: white; border-top: 1px solid #eee; padding: 15px; box-sizing: border-box; z-index: 1000; }
+        .inp { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
-        <div class="login-box">
-            <h1 style="color:var(--primary); margin-bottom:5px;">Elite Logistics</h1>
-            <p style="font-size:12px; color:#666; margin-bottom:30px;">Global Freight Audit Portal</p>
-            <input type="email" id="email" class="inp" placeholder="Email Address">
-            <input type="password" id="password" class="inp" placeholder="Access Key">
-            <button class="btn-submit" onclick="handleAuth()">Authorized Access</button>
+        <div style="width:100%; max-width:320px; text-align:center;">
+            <h2 style="color:var(--primary);">Elite Logistics</h2>
+            <input type="email" id="email" class="inp" placeholder="Email">
+            <input type="password" id="password" class="inp" placeholder="Password">
+            <button class="btn-submit" onclick="handleAuth()">Login</button>
         </div>
     </div>
 
     <div id="main-app" style="display:none;">
         <div class="header">
-            <div class="balance-container">
-                <div class="bal-box">
-                    <div class="bal-label">Node Capital</div>
-                    <div class="bal-val">$ <span id="cap-bal">0.00</span></div>
-                </div>
-                <div class="bal-box">
-                    <div class="bal-label">Audit Profit</div>
-                    <div class="bal-val" style="color:var(--green);">$ <span id="prof-bal">0.00</span></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="map-container">
-            <img src="https://www.transparenttextures.com/patterns/dark-matter.png" class="map-bg">
-            <div class="dot" style="top:20%; left:30%;"></div>
-            <div class="dot" style="top:50%; left:70%;"></div>
-            <div class="dot" style="top:70%; left:15%;"></div>
-            <div class="dot" style="top:40%; left:85%;"></div>
-            <div style="position:absolute; bottom:10px; left:10px; color:var(--primary); font-size:10px; font-family:monospace;">LIVE: SYSTEM AUDIT IN PROGRESS...</div>
-        </div>
-
-        <div class="vip-section">
-            <div class="vip-card" id="v1">
-                <div style="font-size:12px; font-weight:bold;">VIP 1 Node</div>
-                <div style="color:var(--primary); font-size:14px; font-weight:bold;">$360</div>
-                <button id="btn-v1" class="vip-btn" onclick="openUpgrade(360, 'VIP 1')">Upgrade</button>
-            </div>
-            <div class="vip-card">
-                <div style="font-size:12px; font-weight:bold;">VIP 2 Node</div>
-                <div style="color:var(--primary); font-size:14px; font-weight:bold;">$1080</div>
-                <button class="vip-btn" onclick="openUpgrade(1080, 'VIP 2')">Upgrade</button>
+            <div class="bal-container">
+                <div class="bal-box">Audit Capital<span id="cap-bal">0.00</span></div>
+                <div class="bal-box">Total Profit<span id="prof-bal" style="color:var(--green);">0.00</span></div>
             </div>
         </div>
 
         <div class="task-list" id="tasks-container"></div>
-
-        <div class="footer-nav">
-            <button class="btn-submit" style="background:var(--green); margin-right:5px;" onclick="openUpgrade(360, 'Deposit')">Deposit</button>
-            <button class="btn-submit" style="background:var(--dark);" onclick="alert('Locked: 45 Days Audit Required')">Withdraw</button>
-        </div>
     </div>
 
 <script>
@@ -111,30 +49,23 @@
 
     let userData = {}, completedCount = 0;
 
-    const logs = {
-        cities: ["Tokyo, JP", "London, UK", "New York, US", "Singapore, SG", "Sydney, AU", "Berlin, DE", "Paris, FR", "Dubai, AE", "Seoul, KR", "Toronto, CA"],
-        items: ["Microchips", "Medical Devices", "Automotive Parts", "Luxury Goods", "Cold Chain Food", "Industrial Sensors"],
-        carriers: ["DHL Air", "Maersk Ocean", "FedEx Express", "MSC Cargo"]
-    };
-
     async function handleAuth() {
         const e = document.getElementById('email').value, p = document.getElementById('password').value;
         const { data, error } = await _supabase.auth.signInWithPassword({ email: e, password: p });
-        if (error) alert("Access Denied"); else loadData(data.user);
+        if (error) alert("Error: " + error.message); else loadData(data.user);
     }
 
     async function loadData(user) {
-        const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+        const { data, error } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
         if (data) { 
             userData = data;
             
-            // --- نظام تجديد المهام كل 24 ساعة ---
-            const lastUpdate = data.updated_at ? new Date(data.updated_at) : new Date(data.created_at);
-            const now = new Date();
-            
-            if (lastUpdate.toDateString() !== now.toDateString()) {
-                completedCount = 0; // تصفير المهام لليوم الجديد
-                await _supabase.from('profiles').update({ completed_tasks: 0 }).eq('id', user.id);
+            // تحقق بسيط من اليوم لتجديد المهام
+            const lastDate = data.updated_at ? new Date(data.updated_at).toDateString() : "";
+            const today = new Date().toDateString();
+
+            if (lastDate !== today) {
+                completedCount = 0;
             } else {
                 completedCount = data.completed_tasks || 0;
             }
@@ -146,54 +77,63 @@
     }
 
     function updateUI() {
-        document.getElementById('cap-bal').innerText = (userData.balance || 0).toFixed(2);
-        document.getElementById('prof-bal').innerText = (userData.profit_balance || 0).toFixed(2);
+        document.getElementById('cap-bal').innerText = "$" + (userData.balance || 0).toFixed(2);
+        document.getElementById('prof-bal').innerText = "$" + (userData.profit_balance || 0).toFixed(2);
         
-        if(userData.is_vip) {
-            const b = document.getElementById('btn-v1'); b.innerText = "Active"; b.classList.add('locked'); b.onclick = null;
-            document.getElementById('v1').classList.add('active');
-        }
-
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
+        
+        const cities = ["New York", "London", "Tokyo", "Dubai", "Singapore", "Paris", "Berlin", "Shanghai", "Mumbai", "Sydney"];
+
         for(let i=1; i<=10; i++) {
             const isDone = i <= completedCount;
-            const city = logs.cities[i-1];
-            const item = logs.items[Math.floor(Math.random()*logs.items.length)];
-            const carrier = logs.carriers[Math.floor(Math.random()*logs.carriers.length)];
-
             container.innerHTML += `
                 <div class="task-card">
-                    <div class="task-header">
-                        <div class="node-info">
-                            <div class="node-title">Node Settlement: ${city}</div>
-                            <div class="node-desc">Cargo: ${item} | Carrier: ${carrier}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-weight:bold;">Shipment Node: ${cities[i-1]}</div>
+                            <div style="font-size:12px; color:#777;">Order Audit ID: #6772${i}</div>
                         </div>
-                        <div class="node-profit">+$4.00</div>
+                        <div style="color:var(--green); font-weight:bold;">+$4.00</div>
                     </div>
-                    <button class="btn-submit ${isDone ? 'done' : ''}" onclick="doTask(${i-1})">
-                        ${isDone ? 'Node Verified ✓' : 'Execute Freight Audit'}
+                    <button id="btn-${i}" class="btn-submit ${isDone ? 'done' : ''}" onclick="doTask(${i-1})">
+                        ${isDone ? 'Verified ✓' : 'Execute Freight Audit'}
                     </button>
                 </div>`;
         }
     }
 
     async function doTask(index) {
-        if (!userData.is_vip) return alert("VIP 1 Required");
-        if (index === completedCount) {
+        // التأكد من تفعيل VIP
+        if (!userData.is_vip) {
+            alert("VIP 1 Activation Required. Please deposit $360.");
+            return;
+        }
+
+        // التأكد من ترتيب المهام
+        if (index !== completedCount) {
+            alert("Please complete the previous node first.");
+            return;
+        }
+
+        if (index === completedCount && completedCount < 10) {
             completedCount++;
             const newProfit = (userData.profit_balance || 0) + 4;
+
+            // تحديث قاعدة البيانات
             const { error } = await _supabase.from('profiles').update({ 
                 completed_tasks: completedCount, 
                 profit_balance: newProfit,
-                updated_at: new Date().toISOString() 
+                updated_at: new Date().toISOString()
             }).eq('id', userData.id);
-            if (!error) { userData.profit_balance = newProfit; updateUI(); }
-        }
-    }
 
-    function openUpgrade(a, t) {
-        alert(`${t} Request: Transfer ${a} USDT (TRC20) to: TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg\nSend receipt to support.`);
+            if (!error) {
+                userData.profit_balance = newProfit;
+                updateUI();
+            } else {
+                alert("Database Error: " + error.message);
+            }
+        }
     }
 </script>
 </body>
