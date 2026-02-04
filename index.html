@@ -3,91 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atomy Global Hub - Official Portal</title>
+    <title>Atomy Global Hub - Secure Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
-            --primary: #00a8e3; 
-            --primary-dark: #0076a3;
-            --dark: #1a1c22; 
-            --gold: #d4af37; 
-            --green: #2ecc71; 
-            --bg: #f0f2f5; 
+            --primary: #00a8e3; --dark: #1a1c22; --green: #2ecc71; --red: #e74c3c; --bg: #f0f2f5; 
         }
-
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg); 
-            margin: 0; padding: 0; color: #333;
-            background-image: radial-gradient(circle at top right, #e0f4ff, #f0f2f5);
-            min-height: 100vh;
-        }
-
-        /* Header */
-        .header { 
-            background: white; padding: 20px; 
-            text-align: center; border-bottom: 1px solid #ddd;
-            position: sticky; top: 0; z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        .logo { font-size: 22px; font-weight: 900; color: var(--primary); letter-spacing: 1px; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        .header { background: white; padding: 20px; text-align: center; border-bottom: 3px solid var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo { font-size: 22px; font-weight: 900; color: var(--primary); }
         
-        /* Stats */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
-        .stat-card { 
-            background: var(--dark); color: white; padding: 15px; 
-            border-radius: 15px; position: relative;
-        }
+        .stat-card { background: var(--dark); color: white; padding: 15px; border-radius: 15px; }
         .stat-label { font-size: 10px; color: #888; text-transform: uppercase; }
         .stat-val { font-size: 18px; font-weight: bold; margin-top: 5px; }
 
-        /* Progress Bar */
-        .progress-container { padding: 0 15px 15px; }
-        .progress-info { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; color: #666; }
-        .bar-bg { background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; }
-        .bar-fill { background: var(--primary); height: 100%; width: 0%; border-radius: 4px; transition: 1s; }
+        .lock-notice { background: #fff3cd; color: #856404; margin: 10px 15px; padding: 10px; border-radius: 10px; font-size: 11px; border: 1px solid #ffeeba; }
 
-        /* Tiers Scroll */
-        .tier-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 10px 15px; scrollbar-width: none; }
-        .tier-card { 
-            min-width: 140px; background: white; padding: 15px; border-radius: 15px;
-            text-align: center; border: 1.5px solid #eee; transition: 0.3s;
-        }
-        .tier-card.active { border-color: var(--primary); background: #f0faff; box-shadow: 0 5px 15px rgba(0,168,227,0.1); }
-        .tier-name { font-size: 12px; font-weight: bold; }
-        .tier-price { color: var(--primary); font-size: 14px; margin: 5px 0; font-weight: bold; }
+        .tier-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 10px 15px; }
+        .tier-card { min-width: 140px; background: white; padding: 15px; border-radius: 15px; text-align: center; border: 1.5px solid #eee; }
+        .tier-card.active { border-color: var(--primary); background: #f0faff; }
+        
+        .task-card { background: white; margin: 0 15px 12px; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .btn-task { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+        .btn-task.done { background: #eee; color: #aaa; cursor: not-allowed; }
 
-        /* Task Section */
-        .section-title { padding: 10px 15px; font-size: 14px; font-weight: bold; display: flex; justify-content: space-between; }
-        .task-card { 
-            background: white; margin: 0 15px 12px; padding: 15px; 
-            border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .task-btn { 
-            background: var(--dark); color: white; border: none; 
-            padding: 8px 15px; border-radius: 8px; font-size: 12px; cursor: pointer;
-        }
-        .task-btn.done { background: #eee; color: #aaa; cursor: not-allowed; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 15px; gap: 15px; box-sizing: border-box; border-top: 1px solid #eee; }
+        .btn-main { flex: 1; padding: 15px; border: none; border-radius: 12px; font-weight: bold; color: white; cursor: pointer; }
 
-        /* Controls */
-        .bottom-nav { 
-            position: fixed; bottom: 0; width: 100%; background: white; 
-            display: flex; padding: 15px; gap: 15px; box-sizing: border-box;
-            border-top: 1px solid #eee; z-index: 1000;
-        }
-        .btn-main { 
-            flex: 1; padding: 15px; border: none; border-radius: 12px; 
-            font-weight: bold; color: white; cursor: pointer;
-        }
-
-        /* Modal */
-        .modal { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); 
-            z-index: 2000; align-items: center; justify-content: center; padding: 20px;
-            backdrop-filter: blur(5px);
-        }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: white; width: 100%; max-width: 360px; border-radius: 20px; padding: 25px; text-align: center; }
+        .inp { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
 
         #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; text-align: center; }
     </style>
@@ -96,11 +42,10 @@
 
     <div id="auth-screen">
         <div style="width: 80%;">
-            <div class="logo">ATOMY</div>
-            <p style="font-size: 12px; color: #888;">Global Distribution Hub</p>
-            <input type="email" id="email" style="width:100%; padding:15px; margin: 10px 0; border:1px solid #ddd; border-radius:10px;" placeholder="Email">
-            <input type="password" id="password" style="width:100%; padding:15px; margin-bottom: 15px; border:1px solid #ddd; border-radius:10px;" placeholder="Password">
-            <button onclick="handleAuth()" style="width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;">Login</button>
+            <div class="logo">ATOMY HUB</div>
+            <input type="email" id="email" class="inp" placeholder="Email Address">
+            <input type="password" id="password" class="inp" placeholder="Password">
+            <button onclick="handleAuth()" class="btn-main" style="background:var(--primary); width:100%; margin-top:10px;">Login</button>
         </div>
     </div>
 
@@ -109,90 +54,63 @@
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Personal PV</div>
-                <div class="stat-val" id="cap-bal">0.00</div>
+                <div class="stat-label">Capital (Locked)</div>
+                <div class="stat-val">$ <span id="cap-bal">0.00</span></div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Earnings</div>
+                <div class="stat-label">Profit Earnings</div>
                 <div class="stat-val" style="color:var(--primary)">$ <span id="prof-bal">0.00</span></div>
             </div>
         </div>
 
-        <div class="progress-container">
-            <div class="progress-info">
-                <span>Rank: <b id="rank-name">Free Member</b></span>
-                <span id="timer">00:00:00</span>
-            </div>
-            <div class="bar-bg"><div class="bar-fill" id="progress-bar"></div></div>
+        <div id="lock-timer" class="lock-notice">
+            Verifying node status...
         </div>
 
         <div class="tier-scroll">
             <div class="tier-card" id="card-vip1">
-                <div class="tier-name">Special Agent</div>
-                <div class="tier-price">$360</div>
-                <button class="task-btn" id="btn-vip1" onclick="openUpgrade(360, 'Special Agent')">Activate</button>
+                <div style="font-size:12px;">Special Agent</div>
+                <div style="color:var(--primary); font-weight:bold;">$360</div>
+                <button class="btn-task" style="width:100%; margin-top:10px;" id="btn-vip1" onclick="openDeposit(360, 'VIP 1')">Activate</button>
             </div>
             <div class="tier-card" id="card-vip2">
-                <div class="tier-name">Dealer</div>
-                <div class="tier-price">$1,080</div>
-                <button class="task-btn" id="btn-vip2" onclick="openUpgrade(1080, 'Dealer')">Activate</button>
-            </div>
-            <div class="tier-card" id="card-vip3">
-                <div class="tier-name">Elite Master</div>
-                <div class="tier-price">$2,500</div>
-                <button class="task-btn" id="btn-vip3" onclick="openUpgrade(2500, 'Elite Master')">Activate</button>
+                <div style="font-size:12px;">Dealer</div>
+                <div style="color:var(--primary); font-weight:bold;">$1080</div>
+                <button class="btn-task" style="width:100%; margin-top:10px;" id="btn-vip2" onclick="openDeposit(1080, 'VIP 2')">Activate</button>
             </div>
         </div>
 
-        <div class="section-title">Daily Product Audits</div>
         <div id="tasks-container" style="padding-bottom: 100px;"></div>
 
         <div class="bottom-nav">
-            <button class="btn-main" style="background:var(--dark);" onclick="openModal('deposit')">ADD PV</button>
-            <button class="btn-main" style="background:var(--primary);" onclick="openModal('withdraw')">SETTLEMENT</button>
+            <button class="btn-main" style="background:var(--dark);" onclick="openDeposit(360, 'VIP 1')">ADD PV</button>
+            <button class="btn-main" style="background:var(--primary);" onclick="openWithdraw()">SETTLEMENT</button>
         </div>
     </div>
 
     <div id="modal" class="modal">
         <div class="modal-content">
-            <h3 id="m-title" style="color:var(--primary)"></h3>
+            <h3 id="m-title"></h3>
             <p id="m-desc" style="font-size:12px; color:#666;"></p>
-            <div id="m-extra" style="background:#f8f8f8; padding:15px; border-radius:10px; font-family:monospace; font-size:11px; margin:10px 0; border:1px dashed #ccc; word-break:break-all;"></div>
+            <div id="m-extra"></div>
             <button class="btn-main" style="background:var(--dark); width:100%; margin-top:15px;" onclick="closeModal()">Close</button>
         </div>
     </div>
 
 <script>
-    const WALLET = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
+    const WALLET_ADMIN = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
     const supabaseUrl = 'https://setalptyphrhbjcwmhoq.supabase.co';
     const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     let userData = {}, completedCount = 0;
 
-    // مصفوفة الأرباح بناءً على ليفل الـ VIP (بحيث يحقق الربح المطلوب بعد 45 يوم)
-    const REWARDS = {
-        0: 0,    // ليفل 0 (مجاني)
-        1: 0.44, // يحقق 200$ تقريبا بعد 45 يوم
-        2: 1.11, // يحقق 500$ تقريبا بعد 45 يوم
-        3: 1.55  // يحقق 700$ تقريبا بعد 45 يوم
-    };
-
-    function updateTimer() {
-        const now = new Date();
-        const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-        const diff = tomorrow - now;
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        document.getElementById('timer').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-    }
-    setInterval(updateTimer, 1000);
+    const REWARDS = { 0:0, 1:0.44, 2:1.11, 3:1.55 };
 
     async function handleAuth() {
         const email = document.getElementById('email').value, password = document.getElementById('password').value;
         const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-        if (error) alert("Login Failed"); else loadData(data.user);
+        if (error) alert("Access Denied"); else loadData(data.user);
     }
 
     async function loadData(user) {
@@ -203,81 +121,110 @@
             document.getElementById('auth-screen').style.display = 'none'; 
             document.getElementById('main-app').style.display = 'block'; 
             updateUI(); 
+            checkLocks();
         }
     }
 
+    function checkLocks() {
+        if (!userData.activated_at) return;
+        
+        const activatedDate = new Date(userData.activated_at);
+        const now = new Date();
+        
+        // حساب الأيام المتبقية
+        const diffTime = Math.abs(now - activatedDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        const capLock = 30 - diffDays;
+        const profLock = 45 - diffDays;
+
+        let msg = `🛡️ Security Status: <br>`;
+        msg += capLock > 0 ? `Capital locked for ${capLock} days. <br>` : `✅ Capital unlocked. <br>`;
+        msg += profLock > 0 ? `Profits locked for ${profLock} days.` : `✅ Profits unlocked.`;
+        
+        document.getElementById('lock-timer').innerHTML = msg;
+    }
+
     function updateUI() {
-        document.getElementById('cap-bal').innerText = (userData.balance || 0).toLocaleString();
+        document.getElementById('cap-bal').innerText = (userData.balance || 0).toFixed(2);
         document.getElementById('prof-bal').innerText = (userData.profit_balance || 0).toFixed(2);
         
-        // التقدم اليومي
-        const prog = (completedCount / 10) * 100;
-        document.getElementById('progress-bar').style.width = prog + "%";
-
-        // تحديث حالة الرتبة (بناءً على حقل vip_level في قاعدة البيانات)
         const lv = userData.vip_level || 0;
         if(lv > 0) {
-            document.getElementById(`btn-vip${lv}`).innerText = "Activated";
+            document.getElementById(`btn-vip${lv}`).innerText = "Active";
             document.getElementById(`btn-vip${lv}`).disabled = true;
             document.getElementById(`card-vip${lv}`).classList.add('active');
-            const ranks = ["Member", "Special Agent", "Dealer", "Elite Master"];
-            document.getElementById('rank-name').innerText = ranks[lv];
         }
 
         const container = document.getElementById('tasks-container');
         container.innerHTML = '';
         for(let i=1; i<=10; i++) {
             const isDone = i <= completedCount;
-            const reward = REWARDS[lv] || 0;
             container.innerHTML += `
                 <div class="task-card">
                     <div>
-                        <div style="font-weight:bold; font-size:13px;">Audit Order #${900+i}</div>
-                        <div style="font-size:10px; color:var(--primary);">Commission: +$${reward.toFixed(2)}</div>
+                        <div style="font-weight:bold; font-size:13px;">Audit Node #${900+i}</div>
+                        <div style="font-size:10px; color:var(--primary);">Status: ${isDone ? 'Verified' : 'Pending'}</div>
                     </div>
-                    <button class="task-btn ${isDone ? 'done' : ''}" onclick="doTask(${i-1})">
-                        ${isDone ? 'Completed' : 'Process'}
-                    </button>
+                    <button class="btn-task ${isDone ? 'done' : ''}" onclick="doTask(${i-1})">Process</button>
                 </div>`;
         }
     }
 
     async function doTask(index) {
-        const lv = userData.vip_level || 0;
-        if (lv === 0) return alert("Please activate a VIP tier to start earning.");
+        if ((userData.vip_level || 0) === 0) return alert("Activate VIP first.");
         if (index === completedCount) {
             completedCount++;
-            const reward = REWARDS[lv];
+            const reward = REWARDS[userData.vip_level];
             const newProfit = (userData.profit_balance || 0) + reward;
-            
-            const { error } = await _supabase.from('profiles').update({ 
-                completed_tasks: completedCount, 
-                profit_balance: newProfit 
-            }).eq('id', userData.id);
-
-            if (!error) { 
-                userData.profit_balance = newProfit; 
-                updateUI(); 
-            }
+            const { error } = await _supabase.from('profiles').update({ completed_tasks: completedCount, profit_balance: newProfit }).eq('id', userData.id);
+            if (!error) { userData.profit_balance = newProfit; updateUI(); }
         }
     }
 
-    function openUpgrade(amount, tier) {
+    function openDeposit(amount, tier) {
         document.getElementById('modal').style.display = 'flex';
         document.getElementById('m-title').innerText = `Activate ${tier}`;
-        document.getElementById('m-desc').innerText = `Transfer ${amount} USDT (TRC20) to your dedicated Atomy Hub address. Activation is instant after 1 network confirmation.`;
-        document.getElementById('m-extra').innerText = WALLET;
+        document.getElementById('m-desc').innerText = `Transfer ${amount} USDT (TRC20) to:`;
+        document.getElementById('m-extra').innerHTML = `
+            <div style="background:#f4f4f4; padding:10px; border-radius:10px; word-break:break-all; font-family:monospace;">${WALLET_ADMIN}</div>
+            <input type="text" id="txid" class="inp" placeholder="Enter TxID (Transaction Hash)">
+            <button onclick="alert('Submission Received. Verification takes 1-2 hours.')" class="btn-main" style="background:var(--primary); width:100%; margin-top:10px;">Confirm Transfer</button>
+        `;
     }
 
-    function openModal(type) {
-        if (type === 'deposit') {
-            openUpgrade(360, 'Special Agent');
+    function openWithdraw() {
+        const activatedDate = new Date(userData.activated_at || new Date());
+        const daysPassed = Math.floor((new Date() - activatedDate) / (1000 * 60 * 60 * 24));
+
+        document.getElementById('modal').style.display = 'flex';
+        document.getElementById('m-title').innerText = "Settlement Portal";
+        
+        if (daysPassed < 30) {
+            document.getElementById('m-desc').innerText = "Protocol Error: Settlement is locked during the audit phase.";
+            document.getElementById('m-extra').innerHTML = `<b style="color:var(--red)">Next unlock in ${30 - daysPassed} days.</b>`;
         } else {
-            document.getElementById('modal').style.display = 'flex';
-            document.getElementById('m-title').innerText = "Settlement Policy";
-            document.getElementById('m-desc').innerText = "Withdrawals are processed every Sunday. Minimum balance: $50. Verification required.";
-            document.getElementById('m-extra').innerText = "Status: Awaiting Verification";
+            document.getElementById('m-desc').innerText = "Enter your TRC20 address and amount:";
+            document.getElementById('m-extra').innerHTML = `
+                <input type="text" id="user-w" class="inp" placeholder="Your USDT TRC20 Address">
+                <input type="number" id="w-amt" class="inp" placeholder="Amount ($)">
+                <p style="font-size:10px; color:red;">${daysPassed < 45 ? "Note: Only Capital is withdrawable now. Profits unlock after Day 45." : "Status: Full Withdrawal Available"}</p>
+                <button onclick="requestPayout(${daysPassed})" class="btn-main" style="background:var(--green); width:100%; margin-top:10px;">Request Payout</button>
+            `;
         }
+    }
+
+    async function requestPayout(days) {
+        const amt = parseFloat(document.getElementById('w-amt').value);
+        const wallet = document.getElementById('user-w').value;
+
+        if (days < 45 && amt > userData.balance) return alert("You can only withdraw Capital ($" + userData.balance + ") before Day 45.");
+        
+        const { error } = await _supabase.from('withdrawals').insert([{ 
+            user_id: userData.id, amount: amt, wallet_address: wallet, status: 'pending' 
+        }]);
+        
+        if (!error) { alert("Payout request sent to blockchain queue."); closeModal(); }
     }
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
