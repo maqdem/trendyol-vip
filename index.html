@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atomy Global Hub - Secure Portal</title>
+    <title>Atomy Global Hub - Official Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #00a8e3; --dark: #1a1c22; --green: #2ecc71; --red: #e74c3c; --bg: #f0f2f5; }
@@ -58,7 +58,7 @@
                 <div class="stat-val">$ <span id="cap-bal">0.00</span></div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Earnings (Locked)</div>
+                <div class="stat-label">Earnings (USDT)</div>
                 <div class="stat-val" style="color:var(--primary)">$ <span id="prof-bal">0.00</span></div>
             </div>
         </div>
@@ -67,15 +67,15 @@
 
         <div class="tier-container">
             <div class="tier-card" id="card-vip1">
-                <div style="text-align:left;"><b>Special Agent (VIP 1)</b><br><span style="color:var(--primary);">$360</span></div>
+                <div style="text-align:left;"><b>Special Agent (VIP 1)</b><br><span style="color:var(--primary); font-size:12px;">Earn ~$200/45d</span></div>
                 <button class="btn-task" id="btn-vip1" onclick="openDeposit(360, 'Special Agent')">Activate</button>
             </div>
             <div class="tier-card" id="card-vip2">
-                <div style="text-align:left;"><b>Dealer (VIP 2)</b><br><span style="color:var(--primary);">$1080</span></div>
+                <div style="text-align:left;"><b>Dealer (VIP 2)</b><br><span style="color:var(--primary); font-size:12px;">Earn ~$500/45d</span></div>
                 <button class="btn-task" id="btn-vip2" onclick="openDeposit(1080, 'Dealer')">Activate</button>
             </div>
             <div class="tier-card" id="card-vip3">
-                <div style="text-align:left;"><b>Elite Master (VIP 3)</b><br><span style="color:var(--primary);">$2500</span></div>
+                <div style="text-align:left;"><b>Elite Master (VIP 3)</b><br><span style="color:var(--primary); font-size:12px;">Earn ~$800/45d</span></div>
                 <button class="btn-task" id="btn-vip3" onclick="openDeposit(2500, 'Elite Master')">Activate</button>
             </div>
         </div>
@@ -99,14 +99,21 @@
 
 <script>
     const WALLET_ADMIN = "TG9gT1pPJK3aETRp1hVu28F5Zayu4oVyEg";
-    const WHATSAPP_SUPPORT = "212XXXXXXXXX"; // ضع رقمك الحقيقي هنا
+    const WHATSAPP_SUPPORT = "212XXXXXXXXX"; 
 
     const supabaseUrl = 'https://setalptyphrhbjcwmhoq.supabase.co';
     const supabaseKey = 'sb_publishable_P8QbHZQxsaAKYFTpQVU_Gw_1QU5DHas';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     let userData = {}, completedCount = 0;
-    const REWARDS = { 0:0, 1:0.44, 2:1.11, 3:1.55 };
+
+    // تم تعديل الأرباح هنا لتقسيم (200, 500, 800) على 45 يوماً (بافتراض 10 مهام يومياً)
+    const REWARDS = { 
+        0: 0, 
+        1: 0.444, // 4.44$ يومياً -> ~200$ بعد 45 يوم
+        2: 1.111, // 11.11$ يومياً -> ~500$ بعد 45 يوم
+        3: 1.777  // 17.77$ يومياً -> ~800$ بعد 45 يوم
+    };
 
     window.onload = async () => {
         const { data: { session } } = await _supabase.auth.getSession();
@@ -124,8 +131,6 @@
         const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
         if (data) { 
             userData = data;
-            
-            // --- تجديد المهام اليومي ---
             const lastTaskDate = data.last_task_date ? new Date(data.last_task_date) : null;
             const now = new Date();
             if (lastTaskDate && (now.getDate() !== lastTaskDate.getDate())) {
@@ -134,7 +139,6 @@
             } else {
                 completedCount = data.completed_tasks || 0;
             }
-            
             document.getElementById('auth-screen').style.display = 'none'; 
             document.getElementById('main-app').style.display = 'block'; 
             updateUI(); 
@@ -170,7 +174,7 @@
             const isDone = i <= completedCount;
             container.innerHTML += `
                 <div class="task-card">
-                    <div><b>Order #A90${i}</b><br><small style="color:var(--primary);">Bonus: +$${REWARDS[lv] || '0.00'}</small></div>
+                    <div><b>Order #A90${i}</b><br><small style="color:var(--primary);">Bonus: +$${(REWARDS[lv] || 0).toFixed(3)}</small></div>
                     <button class="btn-task ${isDone ? 'done' : ''}" onclick="doTask(${i-1})">${isDone ? 'Verified' : 'Process'}</button>
                 </div>`;
         }
@@ -223,7 +227,7 @@
         const amt = parseFloat(document.getElementById('w-amt').value);
         if (days < 45 && amt > userData.balance) return alert("Capital only before Day 45.");
         const { error } = await _supabase.from('withdrawals').insert([{ user_id: userData.id, amount: amt, wallet_address: document.getElementById('user-w').value, status: 'pending' }]);
-        if (!error) { alert("Sent!"); closeModal(); }
+        if (!error) { alert("Submitted!"); closeModal(); }
     }
 
     async function logout() { await _supabase.auth.signOut(); location.reload(); }
