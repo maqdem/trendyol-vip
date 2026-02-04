@@ -3,52 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atomy Global Hub - Official Portal</title>
+    <title>Atomy Global Hub - Secure Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { 
-            --primary: #00a8e3; --dark: #1a1c22; --green: #2ecc71; --red: #e74c3c; --bg: #f0f2f5; 
-        }
+        :root { --primary: #00a8e3; --dark: #1a1c22; --green: #2ecc71; --red: #e74c3c; --bg: #f0f2f5; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
-        
         .header { background: white; padding: 15px 20px; text-align: center; border-bottom: 3px solid var(--primary); position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 20px; font-weight: 900; color: var(--primary); margin: 0 auto; }
         .logout-btn { color: #888; font-size: 12px; border: none; background: none; cursor: pointer; }
-
-        /* Stats Section */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
-        .stat-card { background: var(--dark); color: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .stat-card { background: var(--dark); color: white; padding: 15px; border-radius: 15px; }
         .stat-label { font-size: 10px; color: #888; text-transform: uppercase; }
         .stat-val { font-size: 18px; font-weight: bold; margin-top: 5px; }
-
-        /* Notifications */
-        .lock-notice { background: #fff3cd; color: #856404; margin: 10px 15px; padding: 12px; border-radius: 12px; font-size: 11px; border: 1px solid #ffeeba; line-height: 1.5; }
+        .lock-notice { background: #fff3cd; color: #856404; margin: 10px 15px; padding: 12px; border-radius: 12px; font-size: 11px; border: 1px solid #ffeeba; }
         .active-notice { background: #d4edda; color: #155724; margin: 10px 15px; padding: 12px; border-radius: 12px; font-size: 11px; border: 1px solid #c3e6cb; }
-
-        /* VIP Tiers - Vertical Layout for better visibility */
         .tier-container { padding: 10px 15px; display: flex; flex-direction: column; gap: 12px; }
-        .tier-card { background: white; padding: 15px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; border: 1.5px solid #eee; transition: 0.3s; }
-        .tier-card.active { border-color: var(--primary); background: #f0faff; box-shadow: 0 5px 15px rgba(0,168,227,0.1); }
-        .tier-info { text-align: left; }
-        .tier-name { font-weight: bold; font-size: 14px; }
-        .tier-price { color: var(--primary); font-weight: bold; font-size: 16px; }
-        
-        /* Task List */
+        .tier-card { background: white; padding: 15px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; border: 1.5px solid #eee; }
+        .tier-card.active { border-color: var(--primary); background: #f0faff; }
         .task-card { background: white; margin: 0 15px 12px; padding: 18px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        .btn-task { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        .btn-task { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; }
         .btn-task.done { background: #eee; color: #aaa; cursor: not-allowed; }
-
-        /* Navigation */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 15px; gap: 15px; box-sizing: border-box; border-top: 1px solid #eee; z-index: 1000; }
         .btn-main { flex: 1; padding: 16px; border: none; border-radius: 14px; font-weight: bold; color: white; cursor: pointer; }
-
-        /* Modal */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-content { background: white; width: 100%; max-width: 380px; border-radius: 25px; padding: 30px; text-align: center; }
-        
-        .inp { width: 100%; padding: 15px; margin-top: 10px; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; background: #fafafa; }
-        .step-box { text-align: left; background: #f9f9f9; padding: 12px; border-radius: 10px; margin: 10px 0; font-size: 13px; }
-        
+        .inp { width: 100%; padding: 15px; margin-top: 10px; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; }
         #auth-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
@@ -63,7 +42,6 @@
                 <input type="password" id="password" class="inp" placeholder="Password">
                 <button onclick="handleAuth()" class="btn-main" style="background:var(--primary); width:100%; margin-top:20px;">Login</button>
             </div>
-            <div id="loading-spinner" style="display:none; color: var(--primary);">Authenticating...</div>
         </div>
     </div>
 
@@ -89,24 +67,15 @@
 
         <div class="tier-container">
             <div class="tier-card" id="card-vip1">
-                <div class="tier-info">
-                    <div class="tier-name">Special Agent (VIP 1)</div>
-                    <div class="tier-price">$360</div>
-                </div>
+                <div style="text-align:left;"><b>Special Agent (VIP 1)</b><br><span style="color:var(--primary);">$360</span></div>
                 <button class="btn-task" id="btn-vip1" onclick="openDeposit(360, 'Special Agent')">Activate</button>
             </div>
             <div class="tier-card" id="card-vip2">
-                <div class="tier-info">
-                    <div class="tier-name">Dealer (VIP 2)</div>
-                    <div class="tier-price">$1080</div>
-                </div>
+                <div style="text-align:left;"><b>Dealer (VIP 2)</b><br><span style="color:var(--primary);">$1080</span></div>
                 <button class="btn-task" id="btn-vip2" onclick="openDeposit(1080, 'Dealer')">Activate</button>
             </div>
             <div class="tier-card" id="card-vip3">
-                <div class="tier-info">
-                    <div class="tier-name">Elite Master (VIP 3)</div>
-                    <div class="tier-price">$2500</div>
-                </div>
+                <div style="text-align:left;"><b>Elite Master (VIP 3)</b><br><span style="color:var(--primary);">$2500</span></div>
                 <button class="btn-task" id="btn-vip3" onclick="openDeposit(2500, 'Elite Master')">Activate</button>
             </div>
         </div>
@@ -147,23 +116,25 @@
 
     async function handleAuth() {
         const email = document.getElementById('email').value, password = document.getElementById('password').value;
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('loading-spinner').style.display = 'block';
         const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-            alert("Login Failed");
-            document.getElementById('login-form').style.display = 'block';
-            document.getElementById('loading-spinner').style.display = 'none';
-        } else {
-            loadData(data.user);
-        }
+        if (error) alert("Login Failed"); else loadData(data.user);
     }
 
     async function loadData(user) {
         const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
         if (data) { 
             userData = data;
-            completedCount = data.completed_tasks || 0;
+            
+            // --- تجديد المهام اليومي ---
+            const lastTaskDate = data.last_task_date ? new Date(data.last_task_date) : null;
+            const now = new Date();
+            if (lastTaskDate && (now.getDate() !== lastTaskDate.getDate())) {
+                completedCount = 0;
+                await _supabase.from('profiles').update({ completed_tasks: 0 }).eq('id', user.id);
+            } else {
+                completedCount = data.completed_tasks || 0;
+            }
+            
             document.getElementById('auth-screen').style.display = 'none'; 
             document.getElementById('main-app').style.display = 'block'; 
             updateUI(); 
@@ -175,19 +146,13 @@
         const noticeBox = document.getElementById('lock-timer');
         if (!userData.activated_at) {
             noticeBox.className = "lock-notice";
-            noticeBox.innerHTML = "⚠️ <b>Account Inactive.</b> Please recharge to activate your node.";
+            noticeBox.innerHTML = "⚠️ <b>Account Inactive.</b> Recharge to activate.";
             return;
         }
-        
         noticeBox.className = "active-notice";
-        const diffDays = Math.ceil(Math.abs(new Date() - new Date(userData.activated_at)) / (1000 * 60 * 60 * 24));
+        const diffDays = Math.ceil(Math.abs(new Date() - new Date(userData.activated_at)) / 86400000);
         const capL = 30 - diffDays, profL = 45 - diffDays;
-        
-        noticeBox.innerHTML = `
-            ✅ <b>Account Active (Day ${diffDays})</b><br>
-            • Capital unlock: ${capL > 0 ? capL + ' days' : 'Ready'}<br>
-            • Profit unlock: ${profL > 0 ? profL + ' days' : 'Ready'}
-        `;
+        noticeBox.innerHTML = `✅ <b>Active (Day ${diffDays})</b> | Cap: ${capL > 0 ? capL+'d' : 'Ready'} | Prof: ${profL > 0 ? profL+'d' : 'Ready'}`;
     }
 
     function updateUI() {
@@ -205,10 +170,7 @@
             const isDone = i <= completedCount;
             container.innerHTML += `
                 <div class="task-card">
-                    <div>
-                        <div style="font-weight:bold; font-size:13px;">Audit Order #A90${i}</div>
-                        <div style="font-size:11px; color:var(--primary);">Bonus: +$${REWARDS[lv] || '0.00'}</div>
-                    </div>
+                    <div><b>Order #A90${i}</b><br><small style="color:var(--primary);">Bonus: +$${REWARDS[lv] || '0.00'}</small></div>
                     <button class="btn-task ${isDone ? 'done' : ''}" onclick="doTask(${i-1})">${isDone ? 'Verified' : 'Process'}</button>
                 </div>`;
         }
@@ -216,54 +178,52 @@
 
     async function doTask(index) {
         if ((userData.vip_level || 0) === 0) return alert("Activate VIP first.");
+        if (completedCount >= 10) return alert("Daily limit reached!");
         if (index === completedCount) {
             completedCount++;
             const newP = (userData.profit_balance || 0) + REWARDS[userData.vip_level];
-            const { error } = await _supabase.from('profiles').update({ completed_tasks: completedCount, profit_balance: newP }).eq('id', userData.id);
+            const { error } = await _supabase.from('profiles').update({ 
+                completed_tasks: completedCount, 
+                profit_balance: newP,
+                last_task_date: new Date().toISOString()
+            }).eq('id', userData.id);
             if (!error) { userData.profit_balance = newP; updateUI(); }
         }
     }
 
     function openDeposit(amount, tier) {
         document.getElementById('modal').style.display = 'flex';
-        document.getElementById('m-title').innerText = "Quick Recharge";
-        document.getElementById('m-desc').innerText = "To activate " + tier + ", follow these steps:";
+        document.getElementById('m-title').innerText = "Recharge";
+        document.getElementById('m-desc').innerText = "Send $"+amount+" USDT (TRC20) to:";
         document.getElementById('m-extra').innerHTML = `
-            <div class="step-box">
-                1. Send $${amount} USDT (TRC20) to:<br>
-                <b style="word-break:break-all; color:var(--primary);">${WALLET_ADMIN}</b><br><br>
-                2. Take a screenshot of the confirmation.<br><br>
-                3. Send the screenshot to support below.
-            </div>
-            <button onclick="contactSupport('${tier}')" class="btn-main" style="background:var(--green); width:100%;">✅ I have Paid - Send Proof</button>
+            <div style="background:#f4f4f4; padding:10px; border-radius:10px; word-break:break-all; font-family:monospace;">${WALLET_ADMIN}</div>
+            <button onclick="contactSupport('${tier}')" class="btn-main" style="background:var(--green); width:100%; margin-top:15px;">✅ Paid - Send Proof</button>
         `;
     }
 
-    function contactSupport(tier) {
-        window.open(`https://wa.me/${WHATSAPP_SUPPORT}?text=I%20paid%20for%20${tier}`, '_blank');
-    }
+    function contactSupport(tier) { window.open(`https://wa.me/${WHATSAPP_SUPPORT}?text=Paid%20for%20${tier}`, '_blank'); }
 
     function openWithdraw() {
-        const days = Math.floor((new Date() - new Date(userData.activated_at || new Date())) / 86400000);
+        const diffDays = Math.ceil(Math.abs(new Date() - new Date(userData.activated_at || new Date())) / 86400000);
         document.getElementById('modal').style.display = 'flex';
         document.getElementById('m-title').innerText = "Settlement";
-        if (!userData.activated_at || days < 30) {
-            document.getElementById('m-desc').innerText = "Withdrawal is locked during the security audit phase (30 days).";
+        if (!userData.activated_at || diffDays < 30) {
+            document.getElementById('m-desc').innerText = "Withdrawal locked (30-day security audit).";
         } else {
-            document.getElementById('m-desc').innerText = "Enter TRC20 address and amount:";
+            document.getElementById('m-desc').innerText = "Enter details:";
             document.getElementById('m-extra').innerHTML = `
-                <input type="text" id="user-w" class="inp" placeholder="Address T...">
+                <input type="text" id="user-w" class="inp" placeholder="TRC20 Address">
                 <input type="number" id="w-amt" class="inp" placeholder="Amount ($)">
-                <button onclick="requestPayout(${days})" class="btn-main" style="background:var(--primary); width:100%; margin-top:10px;">Request</button>
+                <button onclick="requestPayout(${diffDays})" class="btn-main" style="background:var(--primary); width:100%; margin-top:10px;">Submit</button>
             `;
         }
     }
 
     async function requestPayout(days) {
         const amt = parseFloat(document.getElementById('w-amt').value);
-        if (days < 45 && amt > userData.balance) return alert("Before Day 45, only initial Capital can be withdrawn.");
+        if (days < 45 && amt > userData.balance) return alert("Capital only before Day 45.");
         const { error } = await _supabase.from('withdrawals').insert([{ user_id: userData.id, amount: amt, wallet_address: document.getElementById('user-w').value, status: 'pending' }]);
-        if (!error) { alert("Submitted!"); closeModal(); }
+        if (!error) { alert("Sent!"); closeModal(); }
     }
 
     async function logout() { await _supabase.auth.signOut(); location.reload(); }
